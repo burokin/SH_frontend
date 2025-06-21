@@ -3,13 +3,13 @@ import { Typography, Input, Row, Col } from 'antd';
 import { useMediaQuery } from '../../shared/hooks/useMediaQuery';
 import { useLocalStorage } from '../../shared/hooks/useLocalStorage';
 import { getCalls } from '../../shared/api';
+import { LOCAL_STORAGE_KEYS } from '../../shared/utils/constants';
+import { useDebounce } from 'use-debounce';
 import { CallsTable } from './CallsTable';
 import { CallsList } from './CallsList';
 import { CallsFilters } from './CallsFilters';
 import './CallsPage.scss';
 import type { CallsData } from './types';
-import { LOCAL_STORAGE_KEYS } from '../../shared/utils/constants';
-import { useDebounce } from 'use-debounce';
 
 const { Title } = Typography;
 
