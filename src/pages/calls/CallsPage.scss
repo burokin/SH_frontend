@@ -1,0 +1,20 @@
+.calls-page {
+  background-color: #fff;
+}
+
+.call-card-modern {
+  border-radius: 12px !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08) !important;
+  background: #fff !important;
+  margin-bottom: 16px;
+}
+
+.transcription-text {
+  max-height: 100px;
+  overflow-y: auto;
+  display: block;
+  white-space: pre-wrap;
+  background-color: #fafafa;
+  padding: 8px;
+  border-radius: 6px;
+}
