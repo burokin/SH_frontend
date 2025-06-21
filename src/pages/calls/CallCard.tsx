@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { forwardRef } from 'react';
 import {
   Card,
   Row,
@@ -52,113 +52,121 @@ interface CallCardProps {
   call: Call;
 }
 
-export const CallCard = ({ call }: CallCardProps) => {
-  const compliancePercent = Math.round((call.scriptCompliance / 11) * 100);
+export const CallCard = forwardRef<HTMLDivElement, CallCardProps>(
+  ({ call }, ref) => {
+    const compliancePercent = Math.round((call.scriptCompliance / 11) * 100);
 
-  const dateOptions: Intl.DateTimeFormatOptions = {
-    day: 'numeric',
-    month: 'short',
-  };
-  const formattedDate = new Date(call.date).toLocaleDateString(
-    'ru-RU',
-    dateOptions
-  );
-  const formattedTime = call.time.substring(0, 5);
+    const dateOptions: Intl.DateTimeFormatOptions = {
+      day: 'numeric',
+      month: 'short',
+    };
+    const formattedDate = new Date(call.date).toLocaleDateString(
+      'ru-RU',
+      dateOptions
+    );
+    const formattedTime = call.time.substring(0, 5);
 
-  return (
-    <Card className="call-card-modern">
-      <Row justify="space-between" align="top" style={{ marginBottom: '16px' }}>
-        <Col>
-          <Space align="center" size="large">
-            <div>
-              <Title level={5} style={{ margin: 0 }}>
-                {call.address}
-              </Title>
-            </div>
-          </Space>
-        </Col>
-        <Col>
-          <Tag color="purple">{call.topic}</Tag>
-        </Col>
-      </Row>
-
-      <Row justify="space-between" align="middle">
-        <Col>
-          <Space>
-            <User size={16} />
-            <Text strong>{call.staffer.name}</Text>
-            <Text type="secondary">({call.staffer.role})</Text>
-          </Space>
-        </Col>
-        <Col>
-          <Space>
-            <Calendar size={14} />
-            <Text type="secondary">{formattedDate},</Text>
-            <Clock size={14} />
-            <Text type="secondary">{formattedTime}</Text>
-          </Space>
-        </Col>
-      </Row>
-
-      <Divider style={{ margin: '16px 0' }} />
-
-      <Row gutter={[16, 16]} align="middle">
-        <Col span={24}>
-          <div>
-            <Text strong>Соблюдение скрипта</Text>
-            <Progress
-              percent={compliancePercent}
-              strokeColor={
-                compliancePercent > 80
-                  ? 'var(--color-positive)'
-                  : 'var(--color-negative)'
-              }
-            />
-          </div>
-        </Col>
-
-        <Col span={24}>
-          <audio
-            controls
-            src={call.audioUrl}
-            style={{ width: '100%', marginTop: '8px' }}
+    return (
+      <div ref={ref}>
+        <Card className="call-card-modern">
+          <Row
+            justify="space-between"
+            align="top"
+            style={{ marginBottom: '16px' }}
           >
-            Your browser does not support the audio element.
-          </audio>
-        </Col>
-      </Row>
-
-      <Divider style={{ margin: '12px 0' }} />
-
-      <Collapse ghost expandIconPosition="end">
-        <Collapse.Panel header={<Text strong>Детали звонка</Text>} key="1">
-          <Row gutter={[16, 8]}>
-            <StatItem
-              icon={<Bot size={18} color="var(--color-chart-2" />}
-              label="Ошибки в скрипте"
-              value={
-                call.scriptErrors.length > 0 ? (
-                  <Space wrap>
-                    {call.scriptErrors.map((e, i) => (
-                      <Tag color="error" key={i}>
-                        {e}
-                      </Tag>
-                    ))}
-                  </Space>
-                ) : (
-                  'Нет'
-                )
-              }
-            />
-            <StatItem
-              icon={<ThumbsDown size={18} color="var(--color-negative)" />}
-              label="Кол-во отрицаний"
-              value={call.negations.length}
-              color="var(--color-negative)"
-            />
+            <Col>
+              <Space align="center" size="large">
+                <div>
+                  <Title level={5} style={{ margin: 0 }}>
+                    {call.address}
+                  </Title>
+                </div>
+              </Space>
+            </Col>
+            <Col>
+              <Tag color="purple">{call.topic}</Tag>
+            </Col>
           </Row>
-        </Collapse.Panel>
-      </Collapse>
-    </Card>
-  );
-};
+
+          <Row justify="space-between" align="middle">
+            <Col>
+              <Space>
+                <User size={16} />
+                <Text strong>{call.staffer.name}</Text>
+                <Text type="secondary">({call.staffer.role})</Text>
+              </Space>
+            </Col>
+            <Col>
+              <Space>
+                <Calendar size={14} />
+                <Text type="secondary">{formattedDate},</Text>
+                <Clock size={14} />
+                <Text type="secondary">{formattedTime}</Text>
+              </Space>
+            </Col>
+          </Row>
+
+          <Divider style={{ margin: '16px 0' }} />
+
+          <Row gutter={[16, 16]} align="middle">
+            <Col span={24}>
+              <div>
+                <Text strong>Соблюдение скрипта</Text>
+                <Progress
+                  percent={compliancePercent}
+                  strokeColor={
+                    compliancePercent > 80
+                      ? 'var(--color-positive)'
+                      : 'var(--color-negative)'
+                  }
+                />
+              </div>
+            </Col>
+
+            <Col span={24}>
+              <audio
+                controls
+                src={call.audioUrl}
+                style={{ width: '100%', marginTop: '8px' }}
+              >
+                Your browser does not support the audio element.
+              </audio>
+            </Col>
+          </Row>
+
+          <Divider style={{ margin: '12px 0' }} />
+
+          <Collapse ghost expandIconPosition="end">
+            <Collapse.Panel header={<Text strong>Детали звонка</Text>} key="1">
+              <Row gutter={[16, 8]}>
+                <StatItem
+                  icon={<Bot size={18} color="var(--color-chart-2" />}
+                  label="Ошибки в скрипте"
+                  value={
+                    call.scriptErrors.length > 0 ? (
+                      <Space wrap>
+                        {call.scriptErrors.map((e, i) => (
+                          <Tag color="error" key={i}>
+                            {e}
+                          </Tag>
+                        ))}
+                      </Space>
+                    ) : (
+                      'Нет'
+                    )
+                  }
+                />
+                <StatItem
+                  icon={<ThumbsDown size={18} color="var(--color-negative)" />}
+                  label="Кол-во отрицаний"
+                  value={call.negations.length}
+                  color="var(--color-negative)"
+                />
+              </Row>
+            </Collapse.Panel>
+          </Collapse>
+        </Card>
+      </div>
+    );
+  }
+);

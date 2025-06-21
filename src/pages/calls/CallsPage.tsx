@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { Spin, Typography, Pagination } from 'antd';
 import { useMediaQuery } from '../../shared/hooks/useMediaQuery';
 import { getCalls } from '../../shared/api';
@@ -9,43 +9,56 @@ import type { CallsData } from './types';
 
 const { Title } = Typography;
 
+const PAGE_SIZE = 20;
+
 export const CallsPage = () => {
   const [loading, setLoading] = useState(true);
-  const [data, setData] = useState<CallsData | null>(null);
-  const [pagination, setPagination] = useState({
-    current: 1,
-    pageSize: 20,
+  const [moreLoading, setMoreLoading] = useState(false);
+  const [data, setData] = useState<CallsData>({
+    calls: [],
+    page: 1,
+    pageSize: PAGE_SIZE,
     total: 0,
   });
+  const [page, setPage] = useState(1);
   const isMobile = useMediaQuery('(max-width: 768px)');
 
-  const fetchCalls = async (page = 1, pageSize = 20) => {
-    setLoading(true);
+  const fetchCalls = async (pageNum: number) => {
+    if (pageNum > 1) {
+      setMoreLoading(true);
+    } else {
+      setLoading(true);
+    }
+
     try {
-      const response = await getCalls({ page, pageSize });
-      setData(response);
-      setPagination((prev) => ({
-        ...prev,
-        current: response.page,
-        pageSize: response.pageSize,
-        total: response.total,
+      const response = await getCalls({ page: pageNum, pageSize: PAGE_SIZE });
+      setData((prev) => ({
+        ...response,
+        calls:
+          pageNum === 1 ? response.calls : [...prev.calls, ...response.calls],
       }));
     } catch (error) {
       console.error('Failed to fetch calls:', error);
     } finally {
       setLoading(false);
+      setMoreLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchCalls(pagination.current, pagination.pageSize);
-  }, [pagination.current, pagination.pageSize]);
+    fetchCalls(page);
+  }, [page]);
 
-  const handlePageChange = (page: number, pageSize: number) => {
-    setPagination((prev) => ({ ...prev, current: page, pageSize: pageSize }));
+  const handlePageChange = (newPage: number) => {
+    setPage(newPage);
   };
 
-  if (loading || !data) {
+  const loadMoreItems = useCallback(() => {
+    if (moreLoading) return;
+    setPage((prevPage) => prevPage + 1);
+  }, [moreLoading]);
+
+  if (loading) {
     return (
       <div
         style={{
@@ -60,6 +73,8 @@ export const CallsPage = () => {
     );
   }
 
+  const hasMore = data.calls.length < data.total;
+
   return (
     <div className="calls-page">
       <Title level={2} className="dashboard-title">
@@ -69,19 +84,25 @@ export const CallsPage = () => {
       {/* TODO: Filters will be here */}
 
       {isMobile ? (
-        <CallsList calls={data.calls} />
+        <CallsList
+          calls={data.calls}
+          onLoadMore={loadMoreItems}
+          hasMore={hasMore}
+          isLoading={moreLoading}
+        />
       ) : (
-        <CallsTable calls={data.calls} />
+        <>
+          <CallsTable calls={data.calls} />
+          <Pagination
+            current={page}
+            pageSize={PAGE_SIZE}
+            total={data.total}
+            onChange={handlePageChange}
+            showSizeChanger={false}
+            style={{ marginTop: '24px', textAlign: 'center' }}
+          />
+        </>
       )}
-
-      <Pagination
-        current={pagination.current}
-        pageSize={pagination.pageSize}
-        total={pagination.total}
-        onChange={handlePageChange}
-        showSizeChanger
-        style={{ marginTop: '24px', textAlign: 'center' }}
-      />
     </div>
   );
 };
