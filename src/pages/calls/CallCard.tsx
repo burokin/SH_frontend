@@ -1,3 +1,4 @@
+import React from 'react';
 import {
   Card,
   Row,
@@ -10,7 +11,7 @@ import {
   Space,
   Divider,
 } from 'antd';
-import { User, Bot, ThumbsDown, Building, Calendar, Clock } from 'lucide-react';
+import { User, Bot, ThumbsDown, Calendar, Clock } from 'lucide-react';
 import type { Call } from './types';
 import './CallsPage.scss';
 

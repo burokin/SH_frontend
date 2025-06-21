@@ -17,7 +17,7 @@ const columns = [
     title: 'Дата и время',
     dataIndex: 'date',
     key: 'date',
-    render: (text: string, record: Call) => `${record.date} ${record.time}`,
+    render: (_: string, record: Call) => `${record.date} ${record.time}`,
     sorter: (a: Call, b: Call) =>
       new Date(a.date).getTime() - new Date(b.date).getTime(),
   },
