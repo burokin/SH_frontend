@@ -5,6 +5,6 @@ import { BrowserRouter } from 'react-router-dom';
 
 export const AppProviders = ({ children }: { children: ReactNode }) => (
   <Provider store={store}>
-    <BrowserRouter>{children}</BrowserRouter>
+    <BrowserRouter basename="/SH_frontend">{children}</BrowserRouter>
   </Provider>
 );
