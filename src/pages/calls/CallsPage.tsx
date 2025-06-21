@@ -1,19 +1,29 @@
 import { useEffect, useState, useCallback } from 'react';
-import { Spin, Typography, Pagination } from 'antd';
+import { Typography, Input, Row, Col } from 'antd';
 import { useMediaQuery } from '../../shared/hooks/useMediaQuery';
+import { useLocalStorage } from '../../shared/hooks/useLocalStorage';
 import { getCalls } from '../../shared/api';
 import { CallsTable } from './CallsTable';
 import { CallsList } from './CallsList';
+import { CallsFilters } from './CallsFilters';
 import './CallsPage.scss';
 import type { CallsData } from './types';
+import { LOCAL_STORAGE_KEYS } from '../../shared/utils/constants';
+import { useDebounce } from 'use-debounce';
 
 const { Title } = Typography;
 
 const PAGE_SIZE = 20;
 
+interface FilterValues {
+  address?: string;
+  stafferId?: number[];
+  topic?: string[];
+  compliance?: [number, number];
+}
+
 export const CallsPage = () => {
   const [loading, setLoading] = useState(true);
-  const [moreLoading, setMoreLoading] = useState(false);
   const [data, setData] = useState<CallsData>({
     calls: [],
     page: 1,
@@ -21,57 +31,71 @@ export const CallsPage = () => {
     total: 0,
   });
   const [page, setPage] = useState(1);
+  const [filters, setFilters] = useLocalStorage<FilterValues>(
+    LOCAL_STORAGE_KEYS.CALLS_FILTERS,
+    {}
+  );
   const isMobile = useMediaQuery('(max-width: 768px)');
 
-  const fetchCalls = async (pageNum: number) => {
-    if (pageNum > 1) {
-      setMoreLoading(true);
-    } else {
+  const fetchCalls = useCallback(
+    async (pageNum: number, currentFilters: FilterValues) => {
       setLoading(true);
-    }
 
-    try {
-      const response = await getCalls({ page: pageNum, pageSize: PAGE_SIZE });
-      setData((prev) => ({
-        ...response,
-        calls:
-          pageNum === 1 ? response.calls : [...prev.calls, ...response.calls],
-      }));
-    } catch (error) {
-      console.error('Failed to fetch calls:', error);
-    } finally {
-      setLoading(false);
-      setMoreLoading(false);
-    }
-  };
+      try {
+        const response = await getCalls({
+          page: pageNum,
+          pageSize: PAGE_SIZE,
+          ...currentFilters,
+        });
+        setData((prev) => ({
+          ...response,
+          calls:
+            pageNum === 1 ? response.calls : [...prev.calls, ...response.calls],
+        }));
+      } catch (error) {
+        console.error('Failed to fetch calls:', error);
+      } finally {
+        setLoading(false);
+      }
+    },
+    []
+  );
+
+  const [debouncedFetch] = useDebounce(fetchCalls, 300);
 
   useEffect(() => {
-    fetchCalls(page);
-  }, [page]);
+    if (page === 1) {
+      debouncedFetch(page, filters);
+    } else {
+      fetchCalls(page, filters);
+    }
+  }, [page, filters, fetchCalls, debouncedFetch]);
 
-  const handlePageChange = (newPage: number) => {
-    setPage(newPage);
-  };
+  const handleFilterChange = useCallback(
+    (newFilters: Omit<FilterValues, 'address'>) => {
+      setPage(1);
+      setFilters((prev) => ({ ...prev, ...newFilters }));
+    },
+    [setFilters]
+  );
+
+  const handleSearchChange = useCallback(
+    (address: string) => {
+      setPage(1);
+      setFilters((prev) => ({ ...prev, address }));
+    },
+    [setFilters]
+  );
+
+  const handleResetFilters = useCallback(() => {
+    setPage(1);
+    setFilters({});
+  }, [setFilters]);
 
   const loadMoreItems = useCallback(() => {
-    if (moreLoading) return;
+    if (loading || data.calls.length >= data.total) return;
     setPage((prevPage) => prevPage + 1);
-  }, [moreLoading]);
-
-  if (loading) {
-    return (
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          height: '80vh',
-        }}
-      >
-        <Spin size="large" />
-      </div>
-    );
-  }
+  }, [loading, data.total, data.calls.length]);
 
   const hasMore = data.calls.length < data.total;
 
@@ -81,27 +105,39 @@ export const CallsPage = () => {
         Журнал звонков
       </Title>
 
-      {/* TODO: Filters will be here */}
+      <Row gutter={16} align="middle" style={{ marginBottom: 16 }}>
+        <Col flex="auto">
+          <Input.Search
+            placeholder="Поиск по адресу"
+            onSearch={handleSearchChange}
+            onChange={(e) => handleSearchChange(e.target.value)}
+            value={filters.address || ''}
+            allowClear
+          />
+        </Col>
+        <Col flex="none">
+          <CallsFilters
+            filters={filters}
+            onFilterChange={handleFilterChange}
+            onReset={handleResetFilters}
+          />
+        </Col>
+      </Row>
 
       {isMobile ? (
         <CallsList
           calls={data.calls}
           onLoadMore={loadMoreItems}
           hasMore={hasMore}
-          isLoading={moreLoading}
+          isLoading={loading}
         />
       ) : (
-        <>
-          <CallsTable calls={data.calls} />
-          <Pagination
-            current={page}
-            pageSize={PAGE_SIZE}
-            total={data.total}
-            onChange={handlePageChange}
-            showSizeChanger={false}
-            style={{ marginTop: '24px', textAlign: 'center' }}
-          />
-        </>
+        <CallsTable
+          calls={data.calls}
+          loading={loading}
+          onLoadMore={loadMoreItems}
+          hasMore={hasMore}
+        />
       )}
     </div>
   );

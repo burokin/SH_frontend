@@ -182,11 +182,48 @@ const allCalls = Array.from({ length: 125 }, (_, i) => {
   };
 });
 
-export const getCalls = (params: { page?: number; pageSize?: number }) => {
-  const { page = 1, pageSize = 20 } = params;
+export const getCalls = (params: {
+  page?: number;
+  pageSize?: number;
+  address?: string;
+  stafferId?: number[];
+  topic?: string[];
+  compliance?: [number, number];
+}) => {
+  const {
+    page = 1,
+    pageSize = 20,
+    address,
+    stafferId,
+    topic,
+    compliance,
+  } = params;
 
-  // Filtering logic would go here
-  const filteredCalls = allCalls;
+  let filteredCalls = allCalls;
+
+  if (address) {
+    filteredCalls = filteredCalls.filter((call) =>
+      call.address.toLowerCase().includes(address.toLowerCase())
+    );
+  }
+
+  if (stafferId && stafferId.length > 0) {
+    filteredCalls = filteredCalls.filter((call) =>
+      stafferId.includes(call.staffer.id)
+    );
+  }
+
+  if (topic && topic.length > 0) {
+    filteredCalls = filteredCalls.filter((call) => topic.includes(call.topic));
+  }
+
+  if (compliance) {
+    filteredCalls = filteredCalls.filter(
+      (call) =>
+        call.scriptCompliance >= compliance[0] &&
+        call.scriptCompliance <= compliance[1]
+    );
+  }
 
   const start = (page - 1) * pageSize;
   const end = start + pageSize;

@@ -1,5 +1,5 @@
 import { useRef, useCallback } from 'react';
-import { Spin } from 'antd';
+import { Spin, Empty } from 'antd';
 import { CallCard } from './CallCard';
 import type { Call } from './types';
 
@@ -31,6 +31,39 @@ export const CallsList = ({
     [isLoading, hasMore, onLoadMore]
   );
 
+  if (!isLoading && calls.length === 0) {
+    return (
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          minHeight: '50vh',
+        }}
+      >
+        <Empty
+          image={Empty.PRESENTED_IMAGE_SIMPLE}
+          description="По заданным фильтрам данные не найдены"
+        />
+      </div>
+    );
+  }
+
+  if (isLoading && calls.length === 0) {
+    return (
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          minHeight: '50vh',
+        }}
+      >
+        <Spin size="large" />
+      </div>
+    );
+  }
+
   return (
     <div>
       {calls.map((call, index) => {
@@ -44,7 +77,7 @@ export const CallsList = ({
         );
       })}
 
-      {isLoading && (
+      {isLoading && calls.length > 0 && (
         <div style={{ textAlign: 'center', padding: '20px' }}>
           <Spin />
         </div>
