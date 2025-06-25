@@ -6,54 +6,23 @@ import {
   Typography,
   Tag,
   Progress,
-  Avatar,
   Collapse,
   Space,
   Divider,
 } from 'antd';
-import { User, Bot, ThumbsDown, Calendar, Clock } from 'lucide-react';
+import { User, Calendar, Clock } from 'lucide-react';
 import type { Call } from './types';
 import './CallsPage.scss';
 
 const { Text, Title } = Typography;
 
-const StatItem = ({
-  icon,
-  label,
-  value,
-  color,
-}: {
-  icon: React.ReactNode;
-  label: string;
-  value: React.ReactNode;
-  color?: string;
-}) => (
-  <Col span={12}>
-    <div style={{ display: 'flex', alignItems: 'center', marginBottom: '8px' }}>
-      <Avatar
-        size="small"
-        style={{ backgroundColor: 'transparent', marginRight: '8px' }}
-      >
-        {icon}
-      </Avatar>
-      <div>
-        <Text type="secondary" style={{ fontSize: '12px', display: 'block' }}>
-          {label}
-        </Text>
-        <Text strong style={{ color }}>
-          {value}
-        </Text>
-      </div>
-    </div>
-  </Col>
-);
-
 interface CallCardProps {
   call: Call;
+  isMobile?: boolean;
 }
 
 export const CallCard = forwardRef<HTMLDivElement, CallCardProps>(
-  ({ call }, ref) => {
+  ({ call, isMobile }, ref) => {
     const compliancePercent = Math.round((call.scriptCompliance / 11) * 100);
 
     const dateOptions: Intl.DateTimeFormatOptions = {
@@ -88,23 +57,26 @@ export const CallCard = forwardRef<HTMLDivElement, CallCardProps>(
             </Col>
           </Row>
 
-          <Row justify="space-between" align="middle">
-            <Col>
-              <Space>
-                <User size={16} />
-                <Text strong>{call.staffer.name}</Text>
-                <Text type="secondary">({call.staffer.role})</Text>
-              </Space>
-            </Col>
-            <Col>
-              <Space>
-                <Calendar size={14} />
-                <Text type="secondary">{formattedDate},</Text>
-                <Clock size={14} />
-                <Text type="secondary">{formattedTime}</Text>
-              </Space>
-            </Col>
-          </Row>
+          <div style={{ marginBottom: 8 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <User size={16} />
+              <Text strong>{call.staffer.name}</Text>
+              <Text type="secondary">({call.staffer.role})</Text>
+            </div>
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 8,
+                marginTop: 4,
+              }}
+            >
+              <Calendar size={14} />
+              <Text type="secondary">{formattedDate},</Text>
+              <Clock size={14} />
+              <Text type="secondary">{formattedTime}</Text>
+            </div>
+          </div>
 
           <Divider style={{ margin: '16px 0' }} />
 
@@ -138,31 +110,48 @@ export const CallCard = forwardRef<HTMLDivElement, CallCardProps>(
 
           <Collapse ghost expandIconPosition="end">
             <Collapse.Panel header={<Text strong>Детали звонка</Text>} key="1">
-              <Row gutter={[16, 8]}>
-                <StatItem
-                  icon={<Bot size={18} color="var(--color-chart-2" />}
-                  label="Ошибки в скрипте"
-                  value={
-                    call.scriptErrors.length > 0 ? (
-                      <Space wrap>
-                        {call.scriptErrors.map((e, i) => (
-                          <Tag color="error" key={i}>
-                            {e}
-                          </Tag>
-                        ))}
-                      </Space>
-                    ) : (
-                      'Нет'
-                    )
-                  }
-                />
-                <StatItem
-                  icon={<ThumbsDown size={18} color="var(--color-negative)" />}
-                  label="Кол-во отрицаний"
-                  value={call.negations.length}
-                  color="var(--color-negative)"
-                />
-              </Row>
+              <div style={{ marginBottom: 12 }}>
+                <Text strong style={{ display: 'block', marginBottom: 4 }}>
+                  Ошибки скрипта
+                </Text>
+                {call.scriptErrors.length > 0 ? (
+                  <>
+                    {call.scriptErrors.slice(0, 4).map((e, i) => (
+                      <div key={i} style={{ marginBottom: 4 }}>
+                        <Tag color={isMobile ? 'warning' : 'error'}>{e}</Tag>
+                      </div>
+                    ))}
+                    {call.scriptErrors.length > 4 && (
+                      <Text type="secondary" style={{ fontSize: 12 }}>
+                        и ещё {call.scriptErrors.length - 4}
+                      </Text>
+                    )}
+                  </>
+                ) : (
+                  <Text type="secondary">Нет</Text>
+                )}
+              </div>
+              <div>
+                <Text strong style={{ display: 'block', marginBottom: 4 }}>
+                  Отрицания
+                </Text>
+                {call.negations.length > 0 ? (
+                  <>
+                    {call.negations.slice(0, 4).map((n, i) => (
+                      <div key={i} style={{ marginBottom: 4 }}>
+                        <Tag color={isMobile ? 'error' : 'warning'}>{n}</Tag>
+                      </div>
+                    ))}
+                    {call.negations.length > 4 && (
+                      <Text type="secondary" style={{ fontSize: 12 }}>
+                        и ещё {call.negations.length - 4}
+                      </Text>
+                    )}
+                  </>
+                ) : (
+                  <Text type="secondary">Нет</Text>
+                )}
+              </div>
             </Collapse.Panel>
           </Collapse>
         </Card>

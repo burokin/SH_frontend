@@ -1,14 +1,8 @@
 import { useRef, useCallback } from 'react';
 import { Spin, Empty } from 'antd';
 import { CallCard } from './CallCard';
-import type { Call } from './types';
-
-interface CallsListProps {
-  calls: Call[];
-  onLoadMore: () => void;
-  hasMore: boolean;
-  isLoading: boolean;
-}
+import type { CallsListProps } from './types';
+import { useMediaQuery } from '../../shared/hooks/useMediaQuery';
 
 export const CallsList = ({
   calls,
@@ -17,6 +11,7 @@ export const CallsList = ({
   isLoading,
 }: CallsListProps) => {
   const observer = useRef<IntersectionObserver | null>(null);
+  const isMobile = useMediaQuery('(max-width: 768px)');
   const lastCallRef = useCallback(
     (node: HTMLDivElement) => {
       if (isLoading) return;
@@ -73,6 +68,7 @@ export const CallsList = ({
             ref={isLastElement ? lastCallRef : null}
             key={call.id}
             call={call}
+            isMobile={isMobile}
           />
         );
       })}
