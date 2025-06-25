@@ -14,24 +14,11 @@ import {
 } from 'antd';
 import { FilterOutlined } from '@ant-design/icons';
 import { useMediaQuery } from '../../shared/hooks/useMediaQuery';
-import type { Call } from './types';
+import { STAFFERS } from './constants';
+import type { Call, FilterValues } from './types';
 import dayjs from 'dayjs';
 import 'dayjs/locale/ru';
 import ru_RU from 'antd/es/date-picker/locale/ru_RU';
-
-const staffers = [
-  { id: 1, name: 'Иванов И.И.' },
-  { id: 2, name: 'Петрова А.С.' },
-  { id: 3, name: 'Сидоров А.А.' },
-];
-
-interface FilterValues {
-  address?: string;
-  stafferId?: number[];
-  topic?: string[];
-  compliance?: [number, number];
-  dateRange?: [string, string];
-}
 
 interface CallsFiltersProps {
   onFilterChange: (filters: FilterValues) => void;
@@ -222,7 +209,7 @@ export const CallsFilters = ({
             mode="multiple"
             allowClear
             placeholder="Выберите сотрудника"
-            options={staffers.map((s) => ({ label: s.name, value: s.id }))}
+            options={STAFFERS.map((s) => ({ label: s.name, value: s.id }))}
           />
         </Form.Item>
         <Form.Item label="Дата звонка">
@@ -341,7 +328,7 @@ export const CallsFilters = ({
               mode="multiple"
               allowClear
               placeholder="Выберите сотрудника"
-              options={staffers.map((s) => ({ label: s.name, value: s.id }))}
+              options={STAFFERS.map((s) => ({ label: s.name, value: s.id }))}
             />
           </Form.Item>
         </Col>
