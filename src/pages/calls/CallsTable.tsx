@@ -340,6 +340,7 @@ export function SettingsModal({
               onClick={() => {
                 setColumnOrder(DEFAULT_COLUMN_KEYS);
                 onChange(DEFAULT_COLUMN_KEYS);
+                setOpen(false);
               }}
             >
               Сбросить
