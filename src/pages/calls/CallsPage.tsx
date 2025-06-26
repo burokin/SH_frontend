@@ -9,13 +9,21 @@ import { CallsTable } from './CallsTable';
 import { CallsList } from './CallsList';
 import { CallsFilters } from './CallsFilters';
 import './CallsPage.scss';
-import type { CallsData, FilterValues } from './types';
+import type { CallsData, FilterValues, Call as BaseCall } from './types';
+import { SortDescendingOutlined, SettingOutlined } from '@ant-design/icons';
+import { DEFAULT_COLUMN_KEYS } from './constants';
 import { SettingsModal } from './CallsTable';
-import { SortDescendingOutlined } from '@ant-design/icons';
+import { SearchBar } from 'antd-mobile';
+import { SearchOutline } from 'antd-mobile-icons';
 
 const { Title } = Typography;
 
 const PAGE_SIZE = 20;
+
+// Временный тип для данных с backend без callNumber
+interface RawCall extends Omit<BaseCall, 'callNumber'> {
+  callNumber?: string;
+}
 
 export const CallsPage = () => {
   const [loading, setLoading] = useState(true);
@@ -32,37 +40,19 @@ export const CallsPage = () => {
   );
   const isMobile = useMediaQuery('(max-width: 768px)');
   const [searchPhrase, setSearchPhrase] = useState('');
-  const [visibleColumns, setVisibleColumns] = useLocalStorage<string[]>(
-    'calls_table_columns',
-    [
-      'address',
-      'date',
-      'staffer',
-      'topic',
-      'scriptCompliance',
-      'negations',
-      'scriptErrors',
-      'audio',
-    ]
-  );
-  const [columnOrder, setColumnOrder] = useLocalStorage<string[]>(
-    'calls_table_column_order',
-    [
-      'address',
-      'date',
-      'staffer',
-      'topic',
-      'scriptCompliance',
-      'negations',
-      'scriptErrors',
-      'audio',
-    ]
-  );
-  const [settingsOpen, setSettingsOpen] = useState(false);
   const [mobileSort, setMobileSort] = useState<
     'date-desc' | 'date-asc' | 'compliance-desc' | 'compliance-asc'
   >('date-desc');
   const [sortDrawerOpen, setSortDrawerOpen] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [visibleColumns, setVisibleColumns] = useLocalStorage<string[]>(
+    'calls_table_columns',
+    DEFAULT_COLUMN_KEYS
+  );
+  const [columnOrder, setColumnOrder] = useLocalStorage<string[]>(
+    'calls_table_column_order',
+    DEFAULT_COLUMN_KEYS
+  );
 
   const fetchCalls = useCallback(
     async (pageNum: number, currentFilters: FilterValues) => {
@@ -77,7 +67,18 @@ export const CallsPage = () => {
         setData((prev) => ({
           ...response,
           calls:
-            pageNum === 1 ? response.calls : [...prev.calls, ...response.calls],
+            pageNum === 1
+              ? (response.calls as RawCall[]).map((call) => ({
+                  ...call,
+                  callNumber: call.callNumber || String(call.id),
+                }))
+              : [
+                  ...prev.calls,
+                  ...(response.calls as RawCall[]).map((call) => ({
+                    ...call,
+                    callNumber: call.callNumber || String(call.id),
+                  })),
+                ],
         }));
       } catch (error) {
         console.error('Failed to fetch calls:', error);
@@ -118,12 +119,15 @@ export const CallsPage = () => {
 
   const hasMore = data.calls.length < data.total;
 
-  // Имитация поиска по нарушениям и отрицаниям
+  // Имитация поиска по нарушениям, отрицаниям и номеру звонка
   const filteredCalls = useMemo(() => {
     let result = !searchPhrase
       ? data.calls
       : data.calls.filter(
           (call) =>
+            call.callNumber
+              .toLowerCase()
+              .includes(searchPhrase.toLowerCase()) ||
             call.negations.some((n) =>
               n.toLowerCase().includes(searchPhrase.toLowerCase())
             ) ||
@@ -190,12 +194,19 @@ export const CallsPage = () => {
                 calls={data.calls}
               />
             </div>
-            <Input.Search
-              placeholder="Поиск по нарушениям и отрицаниям"
-              allowClear
+            <SearchBar
               value={searchPhrase}
-              onChange={(e) => setSearchPhrase(e.target.value)}
-              style={{ maxWidth: 700, marginLeft: 16 }}
+              onChange={setSearchPhrase}
+              placeholder="Поиск по номеру, нарушениям и отрицаниям"
+              showCancelButton={false}
+              style={{
+                flex: 1,
+                '--height': '36px',
+                '--border-radius': '8px',
+                '--background': '#f5f5f5',
+                minWidth: 0,
+              }}
+              icon={<SearchOutline />}
             />
           </div>
           <Drawer
@@ -236,33 +247,43 @@ export const CallsPage = () => {
             onLoadMore={loadMoreItems}
             hasMore={hasMore}
             isLoading={loading}
+            searchText={searchPhrase}
           />
         </>
       ) : (
         <>
           <div className="calls-toolbar">
-            <SettingsModal
-              visibleColumns={visibleColumns}
-              onChange={setVisibleColumns}
-              columnOrder={columnOrder}
-              setColumnOrder={setColumnOrder}
-              open={settingsOpen}
-              setOpen={setSettingsOpen}
+            <Button
+              type="default"
+              shape="circle"
+              icon={<SettingOutlined />}
+              className="calls-toolbar__settings"
+              onClick={() => setSettingsOpen(true)}
             />
-            <CallsFilters
-              filters={filters}
-              onFilterChange={handleFilterChange}
-              onReset={handleResetFilters}
-              calls={data.calls}
-            />
+            <div className="calls-toolbar__filters">
+              <CallsFilters
+                filters={filters}
+                onFilterChange={handleFilterChange}
+                onReset={handleResetFilters}
+                calls={data.calls}
+              />
+            </div>
             <Input.Search
-              placeholder="Поиск по нарушениям и отрицаниям"
+              placeholder="Поиск по номеру, нарушениям и отрицаниям"
               allowClear
               value={searchPhrase}
               onChange={(e) => setSearchPhrase(e.target.value)}
-              style={{ maxWidth: 700, marginLeft: 16 }}
+              className="calls-toolbar__search"
             />
           </div>
+          <SettingsModal
+            visibleColumns={visibleColumns}
+            onChange={setVisibleColumns}
+            columnOrder={columnOrder}
+            setColumnOrder={setColumnOrder}
+            open={settingsOpen}
+            setOpen={setSettingsOpen}
+          />
           <CallsTable
             calls={filteredCalls}
             loading={loading}

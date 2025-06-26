@@ -18,9 +18,21 @@ const Layout: FC = () => {
           <DesktopNav />
         </AntHeader>
       )}
-      <AntContent className="layout-content">
-        <Outlet />
-      </AntContent>
+      {isMobile ? (
+        <AntContent
+          className={`layout-content-wrapper ${
+            isMobile ? 'extra-mobile-style' : ''
+          }`}
+        >
+          <Outlet />
+        </AntContent>
+      ) : (
+        <AntContent className="layout-content-wrapper">
+          <div className="layout-content">
+            <Outlet />
+          </div>
+        </AntContent>
+      )}
       {isMobile && (
         <>
           <AntFooter className="layout-footer-mobile-nav-placeholder" />

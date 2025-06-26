@@ -410,7 +410,7 @@ export const CallsFilters = ({
               setModalVisible(true);
             }
           }}
-          style={{ width: '30px' }}
+          style={{ width: isMobile ? '30px' : '32px' }}
         />
       </Badge>
       <Modal

@@ -1,5 +1,4 @@
 import { Table, Tag, Empty, Spin, Progress } from 'antd';
-import { SettingOutlined } from '@ant-design/icons';
 import { useRef, useCallback, useEffect } from 'react';
 import { Modal, Checkbox, Button } from 'antd';
 import type { Call } from './types';
@@ -28,6 +27,15 @@ import { highlight } from './utils';
 dayjs.locale('ru');
 
 const ALL_COLUMNS: ColumnsType<Call> = [
+  {
+    title: 'Номер',
+    dataIndex: 'callNumber',
+    key: 'callNumber',
+    render: (callNumber: string, _: Call, __: unknown, search?: string) => {
+      return highlight(callNumber, search || '');
+    },
+    width: 100,
+  },
   {
     title: 'Адрес',
     dataIndex: 'address',
@@ -113,13 +121,17 @@ const ALL_COLUMNS: ColumnsType<Call> = [
     dataIndex: 'scriptErrors',
     key: 'scriptErrors',
     render: (errors: string[], _: unknown, __: unknown, search?: string) =>
-      errors.length
-        ? errors.map((e, i) => (
+      errors.length ? (
+        <span>
+          {errors.map((e, i) => (
             <Tag color="orange" key={i}>
               {highlight(e, search || '')}
             </Tag>
-          ))
-        : '-',
+          ))}
+        </span>
+      ) : (
+        '-'
+      ),
     width: 180,
   },
   {
@@ -175,13 +187,17 @@ export const CallsTable = ({
         Boolean(col) && visibleColumns.includes(String(col && col.key))
     )
     .map((col) => {
-      if (col.key === 'negations' || col.key === 'scriptErrors') {
+      if (
+        col.key === 'negations' ||
+        col.key === 'scriptErrors' ||
+        col.key === 'callNumber'
+      ) {
         return {
           ...col,
-          render: (value: string[], record: Call) =>
+          render: (value: string | string[], record: Call) =>
             (
               col.render as (
-                value: string[],
+                value: string | string[],
                 record: Call,
                 _?: unknown,
                 search?: string
@@ -322,11 +338,6 @@ export function SettingsModal({
 
   return (
     <>
-      <Button
-        icon={<SettingOutlined />}
-        shape="circle"
-        onClick={() => setOpen(true)}
-      />
       <Modal
         title="Настройка колонок"
         open={open}

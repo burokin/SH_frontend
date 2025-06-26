@@ -1,14 +1,19 @@
 import { useRef, useCallback } from 'react';
 import { Spin, Empty } from 'antd';
 import { CallCard } from './CallCard';
-import type { CallsListProps } from './types';
+import type { CallsListProps as BaseCallsListProps } from './types';
 import { useMediaQuery } from '../../shared/hooks/useMediaQuery';
+
+export interface CallsListProps extends BaseCallsListProps {
+  searchText?: string;
+}
 
 export const CallsList = ({
   calls,
   onLoadMore,
   hasMore,
   isLoading,
+  searchText = '',
 }: CallsListProps) => {
   const observer = useRef<IntersectionObserver | null>(null);
   const isMobile = useMediaQuery('(max-width: 768px)');
@@ -69,6 +74,7 @@ export const CallsList = ({
             key={call.id}
             call={call}
             isMobile={isMobile}
+            searchText={searchText}
           />
         );
       })}

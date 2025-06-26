@@ -1,11 +1,24 @@
+$color-bg: #fff;
+$color-bg-secondary: #fafafa;
+$color-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+$color-shadow-light: 0 2px 8px rgba(0, 0, 0, 0.04);
+$radius-main: 8px;
+$radius-card: 12px;
+$gap-toolbar: 8px;
+$gap-desktop: 32px;
+$height-toolbar: 32px;
+$maxwidth-search: 500px;
+$minwidth-search: 180px;
+$padding-card: 8px;
+
 .calls-page {
-  background-color: #fff;
+  background-color: $color-bg;
 }
 
 .call-card-modern {
-  border-radius: 12px !important;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08) !important;
-  background: #fff !important;
+  border-radius: $radius-card !important;
+  box-shadow: $color-shadow !important;
+  background: $color-bg !important;
   margin-bottom: 16px;
 }
 
@@ -14,7 +27,86 @@
   overflow-y: auto;
   display: block;
   white-space: pre-wrap;
-  background-color: #fafafa;
-  padding: 8px;
+  background-color: $color-bg-secondary;
+  padding: $padding-card;
   border-radius: 6px;
+}
+
+.calls-desktop-layout {
+  display: flex;
+  gap: $gap-desktop;
+}
+
+.calls-desktop-filters {
+  flex: 0 0 280px;
+  min-width: 220px;
+  max-width: 320px;
+}
+
+.calls-desktop-content {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.calls-desktop-search {
+  margin-bottom: 16px;
+  max-width: 700px;
+}
+
+.calls-toolbar {
+  display: flex;
+  align-items: center;
+  gap: $gap-toolbar;
+  margin-bottom: 16px;
+}
+
+.calls-toolbar__settings {
+  background: $color-bg;
+  border-radius: $radius-main;
+  height: $height-toolbar;
+  width: $height-toolbar;
+  min-width: $height-toolbar;
+  min-height: $height-toolbar;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  box-shadow: none;
+}
+
+.calls-toolbar__filters {
+  background: $color-bg;
+  border-radius: $radius-main;
+  height: $height-toolbar;
+  display: flex;
+  align-items: center;
+  padding: 0;
+  box-shadow: none;
+}
+
+.calls-toolbar__search {
+  max-width: $maxwidth-search;
+  height: $height-toolbar;
+  flex: 1;
+  min-width: $minwidth-search;
+  margin-left: 0;
+}
+
+// Стили для Dropdown, чтобы не подсвечивалась вся область
+.ant-dropdown-menu {
+  min-width: 200px;
+}
+
+// Кастомизация SearchBar из antd-mobile для мобильной версии
+.calls-toolbar .adm-search-bar {
+  --background: #fff;
+}
+
+.calls-toolbar .adm-search-bar .adm-search-bar-input-box {
+  background: #fff !important;
+  border: 1px solid #e5e5e5 !important;
+  box-shadow: none !important;
+  height: 32px;
 }

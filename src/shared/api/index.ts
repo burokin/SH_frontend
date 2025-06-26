@@ -189,6 +189,10 @@ export const getCalls = (params: {
   stafferId?: number[];
   topic?: string[];
   compliance?: [number, number];
+  dateRange?: [string, string];
+  negations?: string[];
+  scriptErrors?: string[];
+  search?: string;
 }) => {
   const {
     page = 1,
@@ -197,6 +201,10 @@ export const getCalls = (params: {
     stafferId,
     topic,
     compliance,
+    dateRange,
+    negations,
+    scriptErrors,
+    search,
   } = params;
 
   let filteredCalls = allCalls;
@@ -222,6 +230,34 @@ export const getCalls = (params: {
       (call) =>
         call.scriptCompliance >= compliance[0] &&
         call.scriptCompliance <= compliance[1]
+    );
+  }
+
+  if (dateRange && dateRange[0] && dateRange[1]) {
+    filteredCalls = filteredCalls.filter((call) => {
+      return call.date >= dateRange[0] && call.date <= dateRange[1];
+    });
+  }
+
+  if (negations && negations.length > 0) {
+    filteredCalls = filteredCalls.filter((call) =>
+      call.negations.some((n) => negations.includes(n))
+    );
+  }
+
+  if (scriptErrors && scriptErrors.length > 0) {
+    filteredCalls = filteredCalls.filter((call) =>
+      call.scriptErrors.some((e) => scriptErrors.includes(e))
+    );
+  }
+
+  if (search && search.trim()) {
+    const lower = search.trim().toLowerCase();
+    filteredCalls = filteredCalls.filter(
+      (call) =>
+        call.negations.some((n) => n.toLowerCase().includes(lower)) ||
+        call.scriptErrors.some((e) => e.toLowerCase().includes(lower)) ||
+        call.transcription.toLowerCase().includes(lower)
     );
   }
 

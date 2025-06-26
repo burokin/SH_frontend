@@ -13,16 +13,18 @@ import {
 import { User, Calendar, Clock } from 'lucide-react';
 import type { Call } from './types';
 import './CallsPage.scss';
+import { highlight } from './utils';
 
 const { Text, Title } = Typography;
 
 interface CallCardProps {
   call: Call;
   isMobile?: boolean;
+  searchText?: string;
 }
 
 export const CallCard = forwardRef<HTMLDivElement, CallCardProps>(
-  ({ call, isMobile }, ref) => {
+  ({ call, isMobile, searchText }, ref) => {
     const compliancePercent = Math.round((call.scriptCompliance / 11) * 100);
 
     const dateOptions: Intl.DateTimeFormatOptions = {
@@ -49,6 +51,14 @@ export const CallCard = forwardRef<HTMLDivElement, CallCardProps>(
                   <Title level={5} style={{ margin: 0 }}>
                     {call.address}
                   </Title>
+                  {isMobile && (
+                    <Text
+                      type="secondary"
+                      style={{ fontSize: 12, display: 'block' }}
+                    >
+                      № {highlight(call.callNumber, searchText || '')}
+                    </Text>
+                  )}
                 </div>
               </Space>
             </Col>
@@ -118,7 +128,9 @@ export const CallCard = forwardRef<HTMLDivElement, CallCardProps>(
                   <>
                     {call.scriptErrors.slice(0, 4).map((e, i) => (
                       <div key={i} style={{ marginBottom: 4 }}>
-                        <Tag color={isMobile ? 'warning' : 'error'}>{e}</Tag>
+                        <Tag color={isMobile ? 'warning' : 'error'}>
+                          {highlight(e, searchText || '')}
+                        </Tag>
                       </div>
                     ))}
                     {call.scriptErrors.length > 4 && (

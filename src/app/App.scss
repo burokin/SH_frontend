@@ -42,6 +42,7 @@
 }
 
 body {
+  overflow: hidden;
   margin: 0;
   padding: 0;
   font-family: var(--font-family-sans);
@@ -89,4 +90,29 @@ body {
 
 .read-the-docs {
   color: #888;
+}
+
+/* Круглые серые скроллы по всему проекту */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #b0b4bb #f1f1f1;
+}
+
+*::-webkit-scrollbar {
+  height: 14px;
+  width: 14px;
+  background: #f1f1f1;
+  border-radius: 999px;
+}
+*::-webkit-scrollbar-thumb {
+  background: #b0b4bb;
+  border-radius: 999px;
+  min-height: 40px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.07);
+}
+*::-webkit-scrollbar-thumb:hover {
+  background: #a0a4aa;
+}
+*::-webkit-scrollbar-corner {
+  background: #f1f1f1;
 }

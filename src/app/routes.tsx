@@ -8,17 +8,25 @@ import Layout from '../shared/layout';
 import { Path } from './paths';
 import { CallsPage } from '../pages/calls/CallsPage';
 
+// Если true — показывать только раздел звонков, все дашборды скрыты
+export const SHOW_ONLY_CALLS = false;
+
 export const routes: RouteObject[] = [
   {
     path: '/',
     element: <Layout />,
-    children: [
-      { index: true, element: <Navigate to={Path.FUNNEL} replace /> },
-      { path: Path.FUNNEL, element: <FunnelDashboard /> },
-      { path: Path.QUALITY, element: <QualityDashboard /> },
-      { path: Path.NEGATIONS, element: <NegationsDashboard /> },
-      { path: Path.ANALYTICS, element: <AnalyticsDashboard /> },
-      { path: Path.CALLS, element: <CallsPage /> },
-    ],
+    children: SHOW_ONLY_CALLS
+      ? [
+          { index: true, element: <Navigate to={Path.CALLS} replace /> },
+          { path: Path.CALLS, element: <CallsPage /> },
+        ]
+      : [
+          { index: true, element: <Navigate to={Path.FUNNEL} replace /> },
+          { path: Path.FUNNEL, element: <FunnelDashboard /> },
+          { path: Path.QUALITY, element: <QualityDashboard /> },
+          { path: Path.NEGATIONS, element: <NegationsDashboard /> },
+          { path: Path.ANALYTICS, element: <AnalyticsDashboard /> },
+          { path: Path.CALLS, element: <CallsPage /> },
+        ],
   },
 ];
