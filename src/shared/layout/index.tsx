@@ -2,7 +2,6 @@ import type { FC } from 'react';
 import { Outlet } from 'react-router-dom';
 import { Layout as AntLayout } from 'antd';
 import { DesktopNav } from '../../widgets/DesktopNav/DesktopNav';
-import { MobileNav } from '../../widgets/MobileNav/MobileNav';
 import { useMediaQuery } from '../hooks/useMediaQuery';
 import { useState } from 'react';
 import { Drawer, Button } from 'antd';
@@ -11,7 +10,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { Path } from '../../app/paths';
 import './layout.scss';
 
-const { Content: AntContent, Footer: AntFooter } = AntLayout;
+const { Content: AntContent } = AntLayout;
 
 const Layout: FC = () => {
   const isMobile = useMediaQuery('(max-width: 768px)');

@@ -12,9 +12,8 @@ import './CallsPage.scss';
 import type { CallsData, FilterValues, Call as BaseCall } from './types';
 import { SortDescendingOutlined, SettingOutlined } from '@ant-design/icons';
 import { DEFAULT_COLUMN_KEYS } from './constants';
-import { SettingsModal } from './CallsTable';
-import { SearchBar, Popup } from 'antd-mobile';
 import { SearchOutline } from 'antd-mobile-icons';
+import { SettingsModal } from './CallsTable';
 
 const { Title } = Typography;
 
@@ -53,8 +52,6 @@ export const CallsPage = () => {
     'calls_table_column_order',
     DEFAULT_COLUMN_KEYS
   );
-  const [searchPopupOpen, setSearchPopupOpen] = useState(false);
-  const [mobileSearchValue, setMobileSearchValue] = useState('');
 
   const fetchCalls = useCallback(
     async (pageNum: number, currentFilters: FilterValues) => {
@@ -196,13 +193,12 @@ export const CallsPage = () => {
                 calls={data.calls}
               />
             </div>
-            <div style={{ flex: 1 }}>
+            <div style={{ flex: 1, position: 'relative' }}>
               <input
                 type="text"
                 value={searchPhrase}
                 placeholder="Поиск по номеру, нарушениям и отрицаниям"
-                readOnly
-                onFocus={() => setSearchPopupOpen(true)}
+                onChange={(e) => setSearchPhrase(e.target.value)}
                 style={{
                   width: '100%',
                   height: '36px',
@@ -212,7 +208,6 @@ export const CallsPage = () => {
                   padding: '0 36px 0 36px',
                   fontSize: 16,
                   outline: 'none',
-                  cursor: 'pointer',
                   boxSizing: 'border-box',
                   color: '#222',
                 }}
@@ -225,61 +220,30 @@ export const CallsPage = () => {
                   transform: 'translateY(-50%)',
                   fontSize: 20,
                   color: '#bbb',
+                  pointerEvents: 'none',
                 }}
               />
+              {searchPhrase && (
+                <Button
+                  size="small"
+                  style={{
+                    position: 'absolute',
+                    right: 6,
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    border: 'none',
+                    background: 'transparent',
+                    color: '#bbb',
+                    boxShadow: 'none',
+                    padding: 0,
+                  }}
+                  onClick={() => setSearchPhrase('')}
+                >
+                  ×
+                </Button>
+              )}
             </div>
           </div>
-          <Popup
-            visible={searchPopupOpen}
-            onMaskClick={() => setSearchPopupOpen(false)}
-            bodyStyle={{
-              borderBottomLeftRadius: 16,
-              borderBottomRightRadius: 16,
-              paddingTop: '100px',
-              paddingLeft: '10px',
-              paddingRight: '10px',
-              zIndex: 1200,
-            }}
-            position="top"
-            maskStyle={{ background: 'rgba(0,0,0,0.45)', zIndex: 1100 }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <SearchBar
-                value={mobileSearchValue}
-                onChange={setMobileSearchValue}
-                placeholder="Поиск по номеру, нарушениям и отрицаниям"
-                showCancelButton={false}
-                autoFocus
-                style={{
-                  '--height': '40px',
-                  '--border-radius': '8px',
-                  '--background': '#fff',
-                  flex: 1,
-                  minWidth: 0,
-                }}
-                onSearch={() => {
-                  setSearchPhrase(mobileSearchValue);
-                  setSearchPopupOpen(false);
-                }}
-              />
-              <Button
-                type="primary"
-                style={{
-                  height: 40,
-                  borderRadius: 8,
-                  padding: '0 16px',
-                  fontSize: 16,
-                  whiteSpace: 'nowrap',
-                }}
-                onClick={() => {
-                  setSearchPhrase(mobileSearchValue);
-                  setSearchPopupOpen(false);
-                }}
-              >
-                Найти
-              </Button>
-            </div>
-          </Popup>
           <Drawer
             title="Сортировка"
             placement="bottom"
