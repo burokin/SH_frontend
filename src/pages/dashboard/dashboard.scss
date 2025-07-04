@@ -176,6 +176,8 @@ body,
 }
 
 .dashboard-title {
+  margin-top: 0 !important;
+  padding-top: 0 !important;
   font-size: 2.1rem;
   font-weight: 700;
   color: #22223b;
@@ -445,6 +447,8 @@ $accent: #3b82f6;
 }
 
 .dashboard-page .dashboard-title {
+  margin-top: 0 !important;
+  padding-top: 0 !important;
   font-size: 1.75rem;
   font-weight: 700;
   margin-bottom: var(--spacing-lg);
