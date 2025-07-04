@@ -93,7 +93,7 @@ export const CallCard = forwardRef<HTMLDivElement, CallCardProps>(
           <Row gutter={[16, 16]} align="middle">
             <Col span={24}>
               <div>
-                <Text strong>Соблюдение скрипта</Text>
+                <Text strong>Соблюдение инструкции</Text>
                 <Progress
                   percent={compliancePercent}
                   strokeColor={
@@ -122,7 +122,7 @@ export const CallCard = forwardRef<HTMLDivElement, CallCardProps>(
             <Collapse.Panel header={<Text strong>Детали звонка</Text>} key="1">
               <div style={{ marginBottom: 12 }}>
                 <Text strong style={{ display: 'block', marginBottom: 4 }}>
-                  Ошибки скрипта
+                  Нарушение инструкции
                 </Text>
                 {call.scriptErrors.length > 0 ? (
                   <>

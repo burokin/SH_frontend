@@ -67,7 +67,7 @@ const ALL_COLUMNS: ColumnsType<Call> = [
     width: 120,
   },
   {
-    title: 'Соблюдение скрипта',
+    title: 'Соблюдение инструкции',
     dataIndex: 'scriptCompliance',
     key: 'scriptCompliance',
     sorter: (a: Call, b: Call) => a.scriptCompliance - b.scriptCompliance,
@@ -117,7 +117,7 @@ const ALL_COLUMNS: ColumnsType<Call> = [
     width: 180,
   },
   {
-    title: 'Нарушения скрипта',
+    title: 'Нарушения инструкции',
     dataIndex: 'scriptErrors',
     key: 'scriptErrors',
     render: (errors: string[], _: unknown, __: unknown, search?: string) =>

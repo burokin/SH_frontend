@@ -6,6 +6,8 @@ import { Phone, PhoneOff, AlertTriangle, FileWarning } from 'lucide-react';
 import { useMediaQuery } from '../../shared/hooks/useMediaQuery';
 import AnalyticsStatCard from './AnalyticsStatCard';
 import { getAnalyticsOverview } from '../../shared/api';
+import dayjs from 'dayjs';
+import 'dayjs/locale/ru';
 
 // Цвета для тем звонков и динамики
 const callTypeColorMap: Record<string, string> = {
@@ -84,11 +86,31 @@ const OverviewTab: React.FC<OverviewTabProps> = ({ filters }) => {
   // Преобразуем динамику для Column
   const columnData: { date: string; type: string; value: number }[] =
     data.dynamic.flatMap((d) => [
-      { date: d.date.slice(5), type: 'Бронирование', value: d.booking },
-      { date: d.date.slice(5), type: 'Самовывоз', value: d.pickup },
-      { date: d.date.slice(5), type: 'Жалоба', value: d.complaint },
-      { date: d.date.slice(5), type: 'Пропущено', value: d.missed },
-      { date: d.date.slice(5), type: 'Прочее', value: d.other },
+      {
+        date: dayjs(d.date).locale('ru').format('DD.MM'),
+        type: 'Бронирование',
+        value: d.booking,
+      },
+      {
+        date: dayjs(d.date).locale('ru').format('DD.MM'),
+        type: 'Самовывоз',
+        value: d.pickup,
+      },
+      {
+        date: dayjs(d.date).locale('ru').format('DD.MM'),
+        type: 'Жалоба',
+        value: d.complaint,
+      },
+      {
+        date: dayjs(d.date).locale('ru').format('DD.MM'),
+        type: 'Пропущено',
+        value: d.missed,
+      },
+      {
+        date: dayjs(d.date).locale('ru').format('DD.MM'),
+        type: 'Прочее',
+        value: d.other,
+      },
     ]);
 
   return (

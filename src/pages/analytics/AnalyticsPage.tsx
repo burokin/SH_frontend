@@ -17,6 +17,7 @@ import AnalyticsFilters, {
 } from './AnalyticsFilters';
 import { Typography } from 'antd';
 import { Dayjs } from 'dayjs';
+import dayjs from 'dayjs';
 // import { useMediaQuery } from '../../shared/hooks/useMediaQuery';
 // const isMobile = useMediaQuery('(max-width: 768px)');
 
@@ -55,8 +56,10 @@ const tabKeys = ['overview', 'script', 'negations', 'reports'];
 const AnalyticsPage: React.FC = () => {
   const { tab } = useParams();
   const navigate = useNavigate();
+  const defaultEnd = dayjs();
+  const defaultStart = dayjs().subtract(3, 'month');
   const [filters, setFilters] = useState<AnalyticsFiltersValues>({
-    dateRange: [null, null],
+    dateRange: [defaultStart, defaultEnd],
     restaurant: undefined,
   });
   // Если url не содержит таб или таб невалидный — редиректим на overview

@@ -121,22 +121,6 @@ const ScriptTab: React.FC<ScriptTabProps> = ({ filters }) => {
         <Col xs={24} md={8}>
           <div className="analytics-stat-card">
             <div className="analytics-stat-card-content">
-              <div className="analytics-stat-card-label">Лучший сотрудник</div>
-              <div className="analytics-stat-card-value">
-                {data.bestStaffer}
-              </div>
-            </div>
-            <div
-              className="analytics-stat-card-icon"
-              style={{ background: '#fffbe6' }}
-            >
-              <Star size={24} color="#faad14" />
-            </div>
-          </div>
-        </Col>
-        <Col xs={24} md={8}>
-          <div className="analytics-stat-card">
-            <div className="analytics-stat-card-content">
               <div className="analytics-stat-card-label">
                 Ошибок по инструкции
               </div>
@@ -149,6 +133,22 @@ const ScriptTab: React.FC<ScriptTabProps> = ({ filters }) => {
               style={{ background: '#fff1f0' }}
             >
               <AlertTriangle size={24} color="#ff4d4f" />
+            </div>
+          </div>
+        </Col>
+        <Col xs={24} md={8}>
+          <div className="analytics-stat-card">
+            <div className="analytics-stat-card-content">
+              <div className="analytics-stat-card-label">Лучший сотрудник</div>
+              <div className="analytics-stat-card-value">
+                {data.bestStaffer}
+              </div>
+            </div>
+            <div
+              className="analytics-stat-card-icon"
+              style={{ background: '#fffbe6' }}
+            >
+              <Star size={24} color="#faad14" />
             </div>
           </div>
         </Col>

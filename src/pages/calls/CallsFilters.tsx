@@ -261,7 +261,7 @@ export const CallsFilters = ({
             </Button>
           </div>
         </Form.Item>
-        <Form.Item name="compliance" label="Соблюдение скрипта (%)">
+        <Form.Item name="compliance" label="Соблюдение инструкции (%)">
           <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
             <span
               style={{
@@ -362,7 +362,7 @@ export const CallsFilters = ({
           </Form.Item>
         </Col>
         <Col span={24}>
-          <Form.Item name="compliance" label="Соблюдение скрипта (%)">
+          <Form.Item name="compliance" label="Соблюдение инструкции (%)">
             <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
               <span
                 style={{

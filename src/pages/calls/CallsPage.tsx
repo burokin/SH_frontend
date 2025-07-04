@@ -270,10 +270,16 @@ export const CallsPage = () => {
                 setSortDrawerOpen(false);
               }}
               items={[
-                { key: 'date-desc', label: 'Сначала новые' },
-                { key: 'date-asc', label: 'Сначала старые' },
-                { key: 'compliance-desc', label: 'Сначала высокий % скрипта' },
-                { key: 'compliance-asc', label: 'Сначала низкий % скрипта' },
+                { key: 'date-desc', label: 'Сначала новые звонки' },
+                { key: 'date-asc', label: 'Сначала старые звонки' },
+                {
+                  key: 'compliance-desc',
+                  label: 'Сначала высокий % соблюдения инструкции',
+                },
+                {
+                  key: 'compliance-asc',
+                  label: 'Сначала низкий % соблюдения инструкции',
+                },
               ]}
             />
           </Drawer>
