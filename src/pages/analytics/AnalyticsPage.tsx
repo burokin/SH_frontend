@@ -15,27 +15,28 @@ import AnalyticsFilters, {
   type AnalyticsFiltersValues,
 } from './AnalyticsFilters';
 import { Typography } from 'antd';
+import dayjs, { Dayjs } from 'dayjs';
 // import { useMediaQuery } from '../../shared/hooks/useMediaQuery';
 // const isMobile = useMediaQuery('(max-width: 768px)');
 
-const tabItems = [
+const tabItems = (filters: AnalyticsFiltersValues) => [
   {
     key: 'overview',
     label: 'Обзор',
     icon: <PieChartOutlined />,
-    children: <OverviewTab />,
+    children: <OverviewTab filters={filters} />,
   },
   {
     key: 'script',
     label: 'Инструкция',
     icon: <FileTextOutlined />,
-    children: <ScriptTab />,
+    children: <ScriptTab filters={filters} />,
   },
   {
     key: 'negations',
     label: 'Отрицания',
     icon: <WarningOutlined />,
-    children: <NegationsTab />,
+    children: <NegationsTab filters={filters} />,
   },
   {
     key: 'reports',
@@ -77,26 +78,42 @@ const AnalyticsPage: React.FC = () => {
         onReset={handleFiltersReset}
         restaurantOptions={restaurantOptions}
       />
-      <div className="analytics-custom-tabs">
-        <div className="analytics-custom-tabs-list">
-          {tabItems.map((tab) => (
-            <button
-              key={tab.key}
-              className={`analytics-custom-tab${
-                activeKey === tab.key ? ' active' : ''
-              }`}
-              onClick={() => setActiveKey(tab.key)}
-              type="button"
-            >
-              {tab.icon}
-              <span>{tab.label}</span>
-            </button>
-          ))}
-        </div>
-        <div className="analytics-custom-tab-content">
-          {tabItems.find((tab) => tab.key === activeKey)?.children}
-        </div>
-      </div>
+      {/* Преобразуем dateRange из Dayjs в string для моковых API */}
+      {(() => {
+        const toStr = (d: Dayjs | null) => (d ? d.format('YYYY-MM-DD') : null);
+        const apiFilters = {
+          ...filters,
+          dateRange: [
+            toStr(filters.dateRange[0]),
+            toStr(filters.dateRange[1]),
+          ] as [string | null, string | null],
+        };
+        return (
+          <div className="analytics-custom-tabs">
+            <div className="analytics-custom-tabs-list">
+              {tabItems(apiFilters).map((tab) => (
+                <button
+                  key={tab.key}
+                  className={`analytics-custom-tab${
+                    activeKey === tab.key ? ' active' : ''
+                  }`}
+                  onClick={() => setActiveKey(tab.key)}
+                  type="button"
+                >
+                  {tab.icon}
+                  <span>{tab.label}</span>
+                </button>
+              ))}
+            </div>
+            <div className="analytics-custom-tab-content">
+              {
+                tabItems(apiFilters).find((tab) => tab.key === activeKey)
+                  ?.children
+              }
+            </div>
+          </div>
+        );
+      })()}
     </div>
   );
 };

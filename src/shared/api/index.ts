@@ -273,3 +273,239 @@ export const getCalls = (params: {
     calls: paginatedCalls,
   });
 };
+
+// Моки аналитики за год с фильтрами по дате и ресторану
+import { addDays, format } from 'date-fns';
+
+const RESTAURANTS = [
+  { id: 'rest1', name: 'СХ Гончарная' },
+  { id: 'rest2', name: 'СХ Спортивная' },
+  { id: 'rest3', name: 'СХ Загородный' },
+  { id: 'rest4', name: 'СХ Науки' },
+];
+
+function randomInt(min: number, max: number) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+function getDateArray(start: Date, end: Date) {
+  const arr = [];
+  let dt = new Date(start);
+  while (dt <= end) {
+    arr.push(format(dt, 'yyyy-MM-dd'));
+    dt = addDays(dt, 1);
+  }
+  return arr;
+}
+
+// Генерация моковых данных с 1 января текущего года по сегодняшний день
+const NOW = new Date();
+const CURRENT_YEAR = NOW.getFullYear();
+const YEAR_START = new Date(`${CURRENT_YEAR}-01-01`);
+const TODAY = new Date(NOW.getFullYear(), NOW.getMonth(), NOW.getDate());
+const ALL_DATES = getDateArray(YEAR_START, TODAY);
+
+// Генерируем данные по дням и ресторанам
+const analyticsRawData = ALL_DATES.flatMap((date) =>
+  RESTAURANTS.map((rest) => {
+    // Моки: звонки, пропущенные, отрицания, ошибки, темы
+    const totalCalls = randomInt(10, 30);
+    const missedCalls = randomInt(0, 5);
+    const negations = randomInt(0, 6);
+    const scriptErrors = randomInt(0, 8);
+    const topics = [
+      { type: 'Доставка', value: randomInt(2, 10) },
+      { type: 'Бронь', value: randomInt(2, 10) },
+      { type: 'Жалоба', value: randomInt(0, 5) },
+      { type: 'Прочее', value: randomInt(1, 5) },
+    ];
+    return {
+      date,
+      restaurant: rest.id,
+      totalCalls,
+      missedCalls,
+      negations,
+      scriptErrors,
+      topics,
+      bestStaffer: `Сотрудник ${randomInt(1, 5)}`,
+      avgCompliance: randomInt(70, 98),
+    };
+  })
+);
+
+// Фильтрация по дате и ресторану
+function filterAnalyticsData({
+  dateRange,
+  restaurant,
+}: {
+  dateRange?: [string | null, string | null];
+  restaurant?: string;
+}) {
+  return analyticsRawData.filter((item) => {
+    const inDate =
+      !dateRange ||
+      (!dateRange[0] && !dateRange[1]) ||
+      (item.date &&
+        (!dateRange[0] || item.date >= dateRange[0]) &&
+        (!dateRange[1] || item.date <= dateRange[1]));
+    const inRest = !restaurant || item.restaurant === restaurant;
+    return inDate && inRest;
+  });
+}
+
+// Моковый эндпоинт: Обзор
+export const getAnalyticsOverview = async ({
+  dateRange,
+  restaurant,
+}: {
+  dateRange?: [string | null, string | null];
+  restaurant?: string;
+}) => {
+  const data = filterAnalyticsData({ dateRange, restaurant });
+  // Метрики
+  const totalCalls = data.reduce((sum, d) => sum + d.totalCalls, 0);
+  const missedCalls = data.reduce((sum, d) => sum + d.missedCalls, 0);
+  const negations = data.reduce((sum, d) => sum + d.negations, 0);
+  const scriptErrors = data.reduce((sum, d) => sum + d.scriptErrors, 0);
+  // Темы звонков
+  const topicsMap: Record<string, number> = {};
+  data.forEach((d) => {
+    d.topics.forEach((t: { type: string; value: number }) => {
+      topicsMap[t.type] = (topicsMap[t.type] || 0) + t.value;
+    });
+  });
+  const topics = Object.entries(topicsMap).map(([type, value]) => ({
+    type,
+    value,
+  }));
+  // Динамика по дням
+  const dynamic = {} as Record<
+    string,
+    { total: number; missed: number; neg: number }
+  >;
+  data.forEach((d) => {
+    if (!dynamic[d.date]) dynamic[d.date] = { total: 0, missed: 0, neg: 0 };
+    dynamic[d.date].total += d.totalCalls;
+    dynamic[d.date].missed += d.missedCalls;
+    dynamic[d.date].neg += d.negations;
+  });
+  const dynamicArr = Object.entries(dynamic).map(([date, v]) => ({
+    date,
+    ...v,
+  }));
+  return mockApi({
+    totalCalls,
+    missedCalls,
+    negations,
+    scriptErrors,
+    topics,
+    dynamic: dynamicArr,
+  });
+};
+
+// Моковый эндпоинт: Инструкция
+export const getAnalyticsScript = async ({
+  dateRange,
+  restaurant,
+}: {
+  dateRange?: [string | null, string | null];
+  restaurant?: string;
+}) => {
+  const data = filterAnalyticsData({ dateRange, restaurant });
+  // Средний % соответствия
+  const avgCompliance = data.length
+    ? Math.round(
+        data.reduce((sum, d) => sum + d.avgCompliance, 0) / data.length
+      )
+    : 0;
+  // Лучший сотрудник
+  const bestStaffer = data.length
+    ? data[Math.floor(Math.random() * data.length)].bestStaffer
+    : '-';
+  // Ошибки по скрипту
+  const scriptErrors = data.reduce((sum, d) => sum + d.scriptErrors, 0);
+  // Ошибки по типам (моки)
+  const errorTypes = [
+    'Не уточнил адрес',
+    'Не попрощался',
+    'Не уточнил тему',
+    'Не представился',
+    'Не уточнил имя',
+  ];
+  const topErrors = errorTypes.map((type) => ({
+    errorType: type,
+    count: randomInt(2, 12),
+  }));
+  // Ошибки по сотрудникам (моки)
+  const staffers = ['Иванов', 'Петрова', 'Сидоров', 'Смирнова'];
+  const staffErrorData = staffers.flatMap((staffer) =>
+    errorTypes.map((type) => ({
+      staffer,
+      errorType: type,
+      count: randomInt(0, 4),
+    }))
+  );
+  return mockApi({
+    avgCompliance,
+    bestStaffer,
+    scriptErrors,
+    topErrors,
+    staffErrorData,
+  });
+};
+
+// Моковый эндпоинт: Отрицания
+export const getAnalyticsNegations = async ({
+  dateRange,
+  restaurant,
+}: {
+  dateRange?: [string | null, string | null];
+  restaurant?: string;
+}) => {
+  const data = filterAnalyticsData({ dateRange, restaurant });
+  // % звонков с отрицаниями
+  const totalCalls = data.reduce((sum, d) => sum + d.totalCalls, 0);
+  const callsWithNeg = data.reduce(
+    (sum, d) => sum + (d.negations > 0 ? 1 : 0),
+    0
+  );
+  const percentWithNeg = totalCalls
+    ? Math.round((callsWithNeg / totalCalls) * 100)
+    : 0;
+  // Всего отрицаний
+  const totalNegations = data.reduce((sum, d) => sum + d.negations, 0);
+  // Сотрудник с мин. отрицаниями (>= 5 звонков)
+  const staffers = ['Иванов', 'Петрова', 'Сидоров', 'Смирнова', 'Кузнецова'];
+  const staffNegations = staffers.map((name) => ({
+    name,
+    count: randomInt(0, 6),
+    type: 'Грубость',
+  }));
+  const eligible = staffNegations.filter((s) => s.count >= 0);
+  const minNegStaff = eligible.length
+    ? eligible.reduce((min, s) => (s.count < min.count ? s : min), eligible[0])
+    : null;
+  // Причины отрицаний (моки)
+  const reasons = [
+    'Грубость',
+    'Долгое ожидание',
+    'Не помогли',
+    'Ошибки в заказе',
+  ];
+  const topNegations = reasons.map((reason) => ({
+    reason,
+    count: randomInt(1, 5),
+  }));
+  // По сотрудникам (stacked)
+  const staffNegationsStacked = staffers.flatMap((name) =>
+    reasons.map((type) => ({ name, count: randomInt(0, 4), type }))
+  );
+  return mockApi({
+    percentWithNeg,
+    totalNegations,
+    minNegStaff,
+    topNegations,
+    staffNegations,
+    staffNegationsStacked,
+  });
+};

@@ -1,10 +1,11 @@
-import React from 'react';
-import { Row, Col } from 'antd';
+import React, { useEffect, useState } from 'react';
+import { Row, Col, Spin } from 'antd';
 
 import { Column, Pie } from '@ant-design/plots';
 import { Phone, PhoneOff, AlertTriangle, FileWarning } from 'lucide-react';
 import { useMediaQuery } from '../../shared/hooks/useMediaQuery';
 import AnalyticsStatCard from './AnalyticsStatCard';
+import { getAnalyticsOverview } from '../../shared/api';
 
 const pieData = [
   { type: 'Доставка', value: 40 },
@@ -70,8 +71,80 @@ const columnConfig = {
   stack: true,
 };
 
-const OverviewTab: React.FC = () => {
+interface OverviewTabProps {
+  filters: {
+    dateRange: [string | null, string | null];
+    restaurant?: string;
+  };
+}
+
+const OverviewTab: React.FC<OverviewTabProps> = ({ filters }) => {
   const isMobile = useMediaQuery('(max-width: 768px)');
+  const [loading, setLoading] = useState(false);
+  const [data, setData] = useState<{
+    totalCalls: number;
+    missedCalls: number;
+    negations: number;
+    scriptErrors: number;
+    topics: { type: string; value: number }[];
+    dynamic: { date: string; total: number; missed: number; neg: number }[];
+  } | null>(null);
+
+  useEffect(() => {
+    setLoading(true);
+    getAnalyticsOverview({
+      dateRange: filters.dateRange,
+      restaurant: filters.restaurant,
+    })
+      .then(setData)
+      .finally(() => setLoading(false));
+  }, [filters.dateRange, filters.restaurant]);
+
+  if (loading || !data) {
+    return (
+      <div
+        style={{
+          minHeight: 300,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
+        <Spin size="large" />
+      </div>
+    );
+  }
+
+  const pieConfig = {
+    data: data.topics,
+    angleField: 'value',
+    colorField: 'type',
+    color: ({ type }: { type: string }) => callTypeColorMap[type] || '#bfbfbf',
+    label: {
+      text: 'value',
+      style: { fontWeight: 'bold' },
+    },
+    legend: {
+      color: { title: false, position: 'right', rowPadding: 5 },
+    },
+  };
+
+  // Преобразуем динамику для Column
+  const columnData: { date: string; type: string; value: number }[] =
+    data.dynamic.flatMap((d) => [
+      { date: d.date.slice(5), type: 'Всего', value: d.total },
+      { date: d.date.slice(5), type: 'Пропущено', value: d.missed },
+      { date: d.date.slice(5), type: 'Звонки с отрицанием', value: d.neg },
+    ]);
+  const columnConfig = {
+    data: columnData,
+    xField: 'date',
+    yField: 'value',
+    colorField: 'type',
+    color: ({ type }: { type: string }) => callTypeColorMap[type] || '#bfbfbf',
+    stack: true,
+  };
+
   return (
     <div>
       <Row
@@ -81,7 +154,7 @@ const OverviewTab: React.FC = () => {
         <Col xs={24} md={6}>
           <AnalyticsStatCard
             label="Всего звонков"
-            value={123}
+            value={data.totalCalls}
             icon={<Phone size={24} color="#1677ff" />}
             iconBg="#e6f7ff"
           />
@@ -89,7 +162,7 @@ const OverviewTab: React.FC = () => {
         <Col xs={24} md={6}>
           <AnalyticsStatCard
             label="Пропущенных звонков"
-            value={5}
+            value={data.missedCalls}
             icon={<PhoneOff size={24} color="#ff4d4f" />}
             iconBg="#fff1f0"
           />
@@ -97,7 +170,7 @@ const OverviewTab: React.FC = () => {
         <Col xs={24} md={6}>
           <AnalyticsStatCard
             label="Звонков с отрицанием"
-            value={12}
+            value={data.negations}
             icon={<AlertTriangle size={24} color="#faad14" />}
             iconBg="#fffbe6"
           />
@@ -105,7 +178,7 @@ const OverviewTab: React.FC = () => {
         <Col xs={24} md={6}>
           <AnalyticsStatCard
             label="Звонков с нарушением инструкции"
-            value={8}
+            value={data.scriptErrors}
             icon={<FileWarning size={24} color="#722ed1" />}
             iconBg="#f9f0ff"
           />

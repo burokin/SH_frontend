@@ -1,8 +1,9 @@
-import React from 'react';
-import { Row, Col } from 'antd';
+import React, { useEffect, useState } from 'react';
+import { Row, Col, Spin } from 'antd';
 import { Pie, Column } from '@ant-design/plots';
 import { ThumbsDown, Percent, User } from 'lucide-react';
 import { useMediaQuery } from '../../shared/hooks/useMediaQuery';
+import { getAnalyticsNegations } from '../../shared/api';
 
 // Моковые данные звонков за неделю
 const callsWeek = [
@@ -122,8 +123,102 @@ const columnConfig = {
   stack: true,
 };
 
-const NegationsTab: React.FC = () => {
+interface NegationsTabProps {
+  filters: {
+    dateRange: [string | null, string | null];
+    restaurant?: string;
+  };
+}
+
+const NegationsTab: React.FC<NegationsTabProps> = ({ filters }) => {
   const isMobile = useMediaQuery('(max-width: 768px)');
+  const [loading, setLoading] = useState(false);
+  const [data, setData] = useState<{
+    percentWithNeg: number;
+    totalNegations: number;
+    minNegStaff: { name: string; count: number } | null;
+    topNegations: { reason: string; count: number }[];
+    staffNegations: StaffNegationDatum[];
+    staffNegationsStacked: StaffNegationDatum[];
+  } | null>(null);
+
+  useEffect(() => {
+    setLoading(true);
+    getAnalyticsNegations({
+      dateRange: filters.dateRange,
+      restaurant: filters.restaurant,
+    })
+      .then(setData)
+      .finally(() => setLoading(false));
+  }, [filters.dateRange, filters.restaurant]);
+
+  if (loading || !data) {
+    return (
+      <div
+        style={{
+          minHeight: 300,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
+        <Spin size="large" />
+      </div>
+    );
+  }
+
+  const negationStats = [
+    {
+      label: '% звонков с отрицаниями',
+      value: data.percentWithNeg + '%',
+      icon: <Percent size={24} color="#1677ff" />,
+      bg: '#e6f7ff',
+    },
+    {
+      label: 'Всего отрицаний',
+      value: data.totalNegations,
+      icon: <ThumbsDown size={24} color="#ff4d4f" />,
+      bg: '#fff1f0',
+    },
+    {
+      label: 'Сотрудник с мин. отрицаниями',
+      value: data.minNegStaff
+        ? `${data.minNegStaff.name} (${data.minNegStaff.count})`
+        : '-',
+      icon: <User size={24} color="#52c41a" />,
+      bg: '#f6ffed',
+    },
+  ];
+
+  const pieConfig = {
+    data: data.topNegations,
+    angleField: 'count',
+    colorField: 'reason',
+    color: ({ reason }: { reason: string }) =>
+      negationReasonColorMap[reason] || '#bfbfbf',
+    label: {
+      text: 'count',
+      style: {
+        fontWeight: 'bold',
+      },
+    },
+    legend: {
+      color: {
+        title: false,
+        position: 'right',
+        rowPadding: 5,
+      },
+    },
+  };
+
+  const columnConfig = {
+    data: data.staffNegationsStacked,
+    xField: 'name',
+    yField: 'count',
+    colorField: 'type',
+    stack: true,
+  };
+
   return (
     <div>
       <Row
@@ -171,7 +266,7 @@ const NegationsTab: React.FC = () => {
               className="analytics-section-title"
               style={{ marginBottom: 8 }}
             >
-              Сотрудники с отказами
+              Сотрудники с отрицаниями
             </div>
             <Column {...columnConfig} />
           </div>

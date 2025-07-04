@@ -1,8 +1,9 @@
-import React from 'react';
-import { Row, Col } from 'antd';
+import React, { useEffect, useState } from 'react';
+import { Row, Col, Spin } from 'antd';
 import { Column, Pie } from '@ant-design/plots';
 import { AlertTriangle, Star, FileText } from 'lucide-react';
 import { useMediaQuery } from '../../shared/hooks/useMediaQuery';
+import { getAnalyticsScript } from '../../shared/api';
 
 // Тип для данных ошибок сотрудника
 interface StaffErrorDatum {
@@ -11,30 +12,12 @@ interface StaffErrorDatum {
   count: number;
 }
 
-// Данные по ошибкам с использованием errorType как строки
-const staffErrorData: StaffErrorDatum[] = [
-  { staffer: 'Иванов', errorType: 'Не уточнил адрес', count: 4 },
-  { staffer: 'Иванов', errorType: 'Не попрощался', count: 2 },
-  { staffer: 'Иванов', errorType: 'Не представился', count: 1 },
-  { staffer: 'Петрова', errorType: 'Не уточнил адрес', count: 3 },
-  { staffer: 'Петрова', errorType: 'Не попрощался', count: 2 },
-  { staffer: 'Петрова', errorType: 'Не уточнил тему', count: 1 },
-  { staffer: 'Сидоров', errorType: 'Не уточнил имя', count: 2 },
-  { staffer: 'Сидоров', errorType: 'Не уточнил адрес', count: 1 },
-  { staffer: 'Смирнова', errorType: 'Не попрощался', count: 2 },
-  { staffer: 'Смирнова', errorType: 'Не уточнил тему', count: 1 },
-];
-
-// 4. Для графика нужен seriesField: errorType, для подписей — errorTypeLabels
-
-// Для списка ошибок и topErrors тоже используем строки
-const topErrors = [
-  { errorType: 'Не уточнил адрес', count: 12 },
-  { errorType: 'Не попрощался', count: 9 },
-  { errorType: 'Не представился', count: 7 },
-  { errorType: 'Не уточнил тему', count: 5 },
-  { errorType: 'Не уточнил имя', count: 4 },
-];
+interface ScriptTabProps {
+  filters: {
+    dateRange: [string | null, string | null];
+    restaurant?: string;
+  };
+}
 
 // Цвета для ошибок (можно расширить)
 const errorTypeColorMap: Record<string, string> = {
@@ -45,37 +28,71 @@ const errorTypeColorMap: Record<string, string> = {
   'Не уточнил имя': '#722ed1',
 };
 
-const pieConfig = {
-  data: topErrors,
-  angleField: 'count',
-  colorField: 'errorType',
-  color: ({ errorType }: { errorType: string }) =>
-    errorTypeColorMap[errorType] || '#bfbfbf',
-  label: {
-    text: 'count',
-    style: {
-      fontWeight: 'bold',
-    },
-  },
-  legend: {
-    color: {
-      title: false,
-      position: 'right',
-      rowPadding: 5,
-    },
-  },
-};
-
-const ScriptTab: React.FC = () => {
+const ScriptTab: React.FC<ScriptTabProps> = ({ filters }) => {
   const isMobile = useMediaQuery('(max-width: 768px)');
+  const [loading, setLoading] = useState(false);
+  const [data, setData] = useState<{
+    avgCompliance: number;
+    bestStaffer: string;
+    scriptErrors: number;
+    topErrors: { errorType: string; count: number }[];
+    staffErrorData: StaffErrorDatum[];
+  } | null>(null);
+
+  useEffect(() => {
+    setLoading(true);
+    getAnalyticsScript({
+      dateRange: filters.dateRange,
+      restaurant: filters.restaurant,
+    })
+      .then(setData)
+      .finally(() => setLoading(false));
+  }, [filters.dateRange, filters.restaurant]);
+
+  if (loading || !data) {
+    return (
+      <div
+        style={{
+          minHeight: 300,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
+        <Spin size="large" />
+      </div>
+    );
+  }
+
+  const pieConfig = {
+    data: data.topErrors,
+    angleField: 'count',
+    colorField: 'errorType',
+    color: ({ errorType }: { errorType: string }) =>
+      errorTypeColorMap[errorType] || '#bfbfbf',
+    label: {
+      text: 'count',
+      style: {
+        fontWeight: 'bold',
+      },
+    },
+    legend: {
+      color: {
+        title: false,
+        position: 'right',
+        rowPadding: 5,
+      },
+    },
+  };
 
   const config2 = {
-    data: staffErrorData,
+    data: data.staffErrorData,
     xField: 'staffer',
     yField: 'count',
     colorField: 'errorType',
     stack: true,
   };
+
   return (
     <div>
       {/* Stat cards: всегда в одну строку на desktop, в столбик на mobile */}
@@ -89,7 +106,9 @@ const ScriptTab: React.FC = () => {
               <div className="analytics-stat-card-label">
                 Средний % соответствия
               </div>
-              <div className="analytics-stat-card-value">87%</div>
+              <div className="analytics-stat-card-value">
+                {data.avgCompliance}%
+              </div>
             </div>
             <div
               className="analytics-stat-card-icon"
@@ -103,7 +122,9 @@ const ScriptTab: React.FC = () => {
           <div className="analytics-stat-card">
             <div className="analytics-stat-card-content">
               <div className="analytics-stat-card-label">Лучший сотрудник</div>
-              <div className="analytics-stat-card-value">Смирнова 4.9</div>
+              <div className="analytics-stat-card-value">
+                {data.bestStaffer}
+              </div>
             </div>
             <div
               className="analytics-stat-card-icon"
@@ -119,7 +140,9 @@ const ScriptTab: React.FC = () => {
               <div className="analytics-stat-card-label">
                 Ошибок по инструкции
               </div>
-              <div className="analytics-stat-card-value">12</div>
+              <div className="analytics-stat-card-value">
+                {data.scriptErrors}
+              </div>
             </div>
             <div
               className="analytics-stat-card-icon"
