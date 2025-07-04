@@ -6,18 +6,14 @@ import { MobileNav } from '../../widgets/MobileNav/MobileNav';
 import { useMediaQuery } from '../hooks/useMediaQuery';
 import './layout.scss';
 
-const { Content: AntContent, Header: AntHeader, Footer: AntFooter } = AntLayout;
+const { Content: AntContent, Footer: AntFooter } = AntLayout;
 
 const Layout: FC = () => {
   const isMobile = useMediaQuery('(max-width: 768px)');
 
   return (
     <AntLayout className="layout">
-      {!isMobile && (
-        <AntHeader className="layout-header">
-          <DesktopNav />
-        </AntHeader>
-      )}
+      {!isMobile && <DesktopNav />}
       {isMobile ? (
         <AntContent
           className={`layout-content-wrapper ${
@@ -27,7 +23,7 @@ const Layout: FC = () => {
           <Outlet />
         </AntContent>
       ) : (
-        <AntContent className="layout-content-wrapper">
+        <AntContent className="layout-content-wrapper layout-content-with-nav">
           <div className="layout-content">
             <Outlet />
           </div>

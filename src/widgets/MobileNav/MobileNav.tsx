@@ -1,28 +1,14 @@
 import { TabBar } from 'antd-mobile';
-import { AreaChart, BarChart, Users, PieChart, Phone } from 'lucide-react';
+import { Phone } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Path } from '../../app/paths';
+import { BarChartOutlined } from '@ant-design/icons';
 
 const tabs = [
   {
-    key: Path.FUNNEL,
-    title: 'Воронка',
-    icon: <AreaChart />,
-  },
-  {
-    key: Path.QUALITY,
-    title: 'Качество',
-    icon: <PieChart />,
-  },
-  {
-    key: Path.NEGATIONS,
-    title: 'Отказы',
-    icon: <BarChart />,
-  },
-  {
     key: Path.ANALYTICS,
     title: 'Аналитика',
-    icon: <Users />,
+    icon: <BarChartOutlined />,
   },
   {
     key: Path.CALLS,

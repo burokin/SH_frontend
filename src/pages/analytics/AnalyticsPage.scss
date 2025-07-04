@@ -1,0 +1,219 @@
+.analytics-filters {
+  background: none !important;
+  border: 1px solid #f0f0f0;
+  border-radius: 10px;
+  padding: 8px 12px !important;
+  box-shadow: none !important;
+  margin-bottom: 18px;
+}
+
+.analytics-tabs {
+  background: none !important;
+  border: 1px solid #e6e6e6;
+  border-radius: 10px;
+  display: flex;
+  gap: 16px;
+  padding: 4px 10px;
+  margin-bottom: 18px;
+  .analytics-tab {
+    padding: 7px 22px;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 500;
+    color: #222;
+    background: none;
+    border: none;
+    transition: background 0.2s, color 0.2s;
+    cursor: pointer;
+    &.active {
+      color: #1677ff;
+      font-weight: 700;
+      background: none;
+      border: 1.5px solid #1677ff;
+    }
+  }
+}
+
+.analytics-custom-tabs {
+  border-radius: 8px;
+  box-shadow: none;
+  margin-bottom: 16px;
+}
+.analytics-custom-tabs-list {
+  display: flex;
+  gap: 6px;
+  padding: 10px 0;
+}
+.analytics-custom-tab {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  border: none;
+  background: #f5f6fa;
+  border-radius: 10px;
+  padding: 4px 10px;
+  font-size: 13px;
+  color: #222;
+  cursor: pointer;
+  transition: background 0.18s, color 0.18s;
+  box-shadow: none;
+  outline: none;
+}
+.analytics-custom-tab.active {
+  background: #1677ff;
+  color: #fff;
+}
+.analytics-custom-tab svg {
+  font-size: 16px;
+}
+.analytics-custom-tab-content {
+  margin-top: 6px;
+}
+
+@media (max-width: 768px) {
+  .analytics-filters {
+    padding: 6px 6px !important;
+    margin-bottom: 10px;
+  }
+  .analytics-tabs {
+    gap: 6px;
+    padding: 2px 2px;
+    .analytics-tab {
+      padding: 6px 10px;
+      font-size: 15px;
+    }
+  }
+  .analytics-custom-tabs {
+    padding: 6px 6px;
+    margin-bottom: 10px;
+  }
+  .analytics-custom-tabs-list {
+    gap: 4px;
+    margin-bottom: 4px;
+  }
+  .analytics-custom-tab {
+    padding: 3px 8px;
+    font-size: 12px;
+    border-radius: 8px;
+    gap: 3px;
+  }
+  .analytics-custom-tab svg {
+    font-size: 14px;
+  }
+  .analytics-custom-tab-content {
+    margin-top: 4px;
+  }
+}
+
+.analytics-stat-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.04);
+  border: 1px solid #f0f0f0;
+  padding: 18px 20px;
+  margin-bottom: 0;
+  min-height: 80px;
+  .analytics-stat-card-content {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .analytics-stat-card-label {
+    font-size: 15px;
+    color: #888;
+    margin-bottom: 2px;
+  }
+  .analytics-stat-card-value {
+    font-size: 24px;
+    font-weight: 600;
+    color: #222;
+  }
+  .analytics-stat-card-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    width: 44px;
+    height: 44px;
+    margin-left: 16px;
+  }
+}
+
+.analytics-card {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.04);
+  border: 1px solid #f0f0f0;
+  padding: 18px 20px;
+  margin-bottom: 0;
+}
+
+.analytics-section-title {
+  margin: 18px 0 14px 0;
+  font-size: 17px;
+}
+
+.analytics-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  li {
+    display: flex;
+    align-items: center;
+    padding: 10px 0;
+    font-size: 16px;
+    border-bottom: 1px solid #f5f5f5;
+    &:last-child {
+      border-bottom: none;
+    }
+  }
+}
+
+.analytics-chart-block {
+  margin-top: 16px;
+}
+
+.analytics-content-narrow {
+  max-width: 520px;
+  margin: 0 auto;
+}
+
+@media (max-width: 768px) {
+  .analytics-stat-card {
+    padding: 12px 12px;
+    min-height: 64px;
+    .analytics-stat-card-value {
+      font-size: 20px;
+    }
+    .analytics-stat-card-icon {
+      width: 36px;
+      height: 36px;
+      margin-left: 10px;
+    }
+  }
+  .analytics-card {
+    padding: 12px 12px;
+  }
+  .analytics-section-title {
+    font-size: 15px;
+  }
+  .analytics-list li {
+    font-size: 15px;
+    padding: 8px 0;
+  }
+  .analytics-content-narrow {
+    max-width: 100%;
+    margin: 0;
+  }
+}
+
+.dashboard-title {
+  margin-bottom: 12px;
+  margin-left: 0;
+  font-weight: 700;
+  font-size: 28px;
+  line-height: 1.2;
+}
