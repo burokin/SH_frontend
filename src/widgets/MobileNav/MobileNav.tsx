@@ -25,11 +25,13 @@ export const MobileNav = () => {
     navigate(value);
   };
 
+  // Для аналитики выделяем все пути, начинающиеся с /dashboard/analytics
+  let activeKey = location.pathname.startsWith(Path.ANALYTICS)
+    ? Path.ANALYTICS
+    : location.pathname;
+
   return (
-    <TabBar
-      activeKey={location.pathname}
-      onChange={(value) => setRouteActive(value)}
-    >
+    <TabBar activeKey={activeKey} onChange={(value) => setRouteActive(value)}>
       {tabs.map((item) => (
         <TabBar.Item key={item.key} icon={item.icon} title={item.title} />
       ))}

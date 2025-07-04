@@ -3,6 +3,7 @@ import { Row, Col, Spin } from 'antd';
 import { Pie, Column } from '@ant-design/plots';
 import { useMediaQuery } from '../../shared/hooks/useMediaQuery';
 import { getAnalyticsNegations } from '../../shared/api';
+import { Percent, ThumbsDown, User } from 'lucide-react';
 
 // Тип для данных по сотрудникам
 interface StaffNegationDatum {
@@ -63,13 +64,36 @@ const NegationsTab: React.FC<NegationsTabProps> = ({ filters }) => {
     );
   }
 
+  const negationStats = [
+    {
+      label: '% звонков с отрицаниями',
+      value: data.percentWithNeg + '%',
+      icon: <Percent size={24} color="#1677ff" />,
+      bg: '#e6f7ff',
+    },
+    {
+      label: 'Всего отрицаний',
+      value: data.totalNegations,
+      icon: <ThumbsDown size={24} color="#ff4d4f" />,
+      bg: '#fff1f0',
+    },
+    {
+      label: 'Сотрудник с мин. отрицаниями',
+      value: data.minNegStaff
+        ? `${data.minNegStaff.name} (${data.minNegStaff.count})`
+        : '-',
+      icon: <User size={24} color="#52c41a" />,
+      bg: '#f6ffed',
+    },
+  ];
+
   return (
     <div>
       <Row
-        gutter={[isMobile ? 8 : 24, isMobile ? 8 : 24]}
+        gutter={[isMobile ? 8 : 24, isMobile ? 8 : 32]}
         style={{ marginBottom: isMobile ? 8 : 32 }}
       >
-        {/* negationStats.map((stat) => (
+        {negationStats.map((stat) => (
           <Col xs={24} md={8} key={stat.label}>
             <div className="analytics-stat-card">
               <div className="analytics-stat-card-content">
@@ -84,7 +108,7 @@ const NegationsTab: React.FC<NegationsTabProps> = ({ filters }) => {
               </div>
             </div>
           </Col>
-        )) */}
+        ))}
       </Row>
       <Row gutter={[isMobile ? 8 : 24, isMobile ? 8 : 24]}>
         <Col xs={24} md={7}>

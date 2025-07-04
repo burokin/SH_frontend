@@ -1,5 +1,5 @@
 import type { RouteObject } from 'react-router-dom';
-import { Navigate } from 'react-router-dom';
+import { Navigate, Outlet } from 'react-router-dom';
 import Layout from '../shared/layout';
 import { Path } from './paths';
 import { CallsPage } from '../pages/calls/CallsPage';
@@ -24,7 +24,7 @@ export const routes: RouteObject[] = [
           {
             path: Path.ANALYTICS,
             element: <AnalyticsPage />,
-            children: [{ path: ':tab', element: <AnalyticsPage /> }],
+            children: [{ path: ':tab', element: <Outlet /> }],
           },
           { path: '*', element: <Navigate to={Path.ANALYTICS} replace /> },
         ],

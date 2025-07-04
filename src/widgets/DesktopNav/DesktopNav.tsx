@@ -23,10 +23,15 @@ export const DesktopNav = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
+  // Для аналитики выделяем все пути, начинающиеся с /dashboard/analytics
+  let selectedKey = location.pathname.startsWith(Path.ANALYTICS)
+    ? Path.ANALYTICS
+    : location.pathname;
+
   return (
     <Menu
       mode="horizontal"
-      selectedKeys={[location.pathname]}
+      selectedKeys={[selectedKey]}
       onClick={({ key }) => navigate(key)}
       items={items}
       className="desktop-nav-menu"
