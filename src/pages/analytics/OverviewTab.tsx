@@ -9,12 +9,10 @@ import { getAnalyticsOverview } from '../../shared/api';
 
 // Цвета для тем звонков и динамики
 const callTypeColorMap: Record<string, string> = {
-  Доставка: '#1677ff',
-  Бронь: '#faad14',
+  Бронирование: '#faad14',
   Самовывоз: '#52c41a',
-  Пропущено: '#ff4d4f',
-  Всего: '#bfbfbf',
   Жалоба: '#722ed1',
+  Пропущено: '#ff4d4f',
   Прочее: '#8c8c8c',
 };
 
@@ -34,7 +32,14 @@ const OverviewTab: React.FC<OverviewTabProps> = ({ filters }) => {
     negations: number;
     scriptErrors: number;
     topics: { type: string; value: number }[];
-    dynamic: { date: string; total: number; missed: number; neg: number }[];
+    dynamic: {
+      date: string;
+      other: number;
+      missed: number;
+      booking: number;
+      pickup: number;
+      complaint: number;
+    }[];
   } | null>(null);
 
   useEffect(() => {
@@ -79,9 +84,11 @@ const OverviewTab: React.FC<OverviewTabProps> = ({ filters }) => {
   // Преобразуем динамику для Column
   const columnData: { date: string; type: string; value: number }[] =
     data.dynamic.flatMap((d) => [
-      { date: d.date.slice(5), type: 'Всего', value: d.total },
+      { date: d.date.slice(5), type: 'Бронирование', value: d.booking },
+      { date: d.date.slice(5), type: 'Самовывоз', value: d.pickup },
+      { date: d.date.slice(5), type: 'Жалоба', value: d.complaint },
       { date: d.date.slice(5), type: 'Пропущено', value: d.missed },
-      { date: d.date.slice(5), type: 'Звонки с отрицанием', value: d.neg },
+      { date: d.date.slice(5), type: 'Прочее', value: d.other },
     ]);
 
   return (

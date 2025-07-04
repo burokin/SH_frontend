@@ -167,7 +167,7 @@ const ScriptTab: React.FC<ScriptTabProps> = ({ filters }) => {
               className="analytics-section-title"
               style={{ marginBottom: 8 }}
             >
-              Ошибки по инструкции
+              Топ ошибок по инструкции
             </div>
             <Pie {...pieConfig} />
           </div>

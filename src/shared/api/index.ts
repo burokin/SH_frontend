@@ -313,11 +313,24 @@ const analyticsRawData = ALL_DATES.flatMap((date) =>
     const missedCalls = randomInt(0, 5);
     const negations = randomInt(0, 6);
     const scriptErrors = randomInt(0, 8);
+    const instruction = randomInt(1, 6);
+    const booking = randomInt(2, 8);
+    const pickup = randomInt(1, 6);
+    const complaint = randomInt(0, 5);
+    const other =
+      totalCalls -
+      missedCalls -
+      negations -
+      instruction -
+      booking -
+      pickup -
+      complaint;
     const topics = [
-      { type: 'Доставка', value: randomInt(2, 10) },
-      { type: 'Бронь', value: randomInt(2, 10) },
-      { type: 'Жалоба', value: randomInt(0, 5) },
-      { type: 'Прочее', value: randomInt(1, 5) },
+      { type: 'Бронирование', value: booking },
+      { type: 'Самовывоз', value: pickup },
+      { type: 'Жалоба', value: complaint },
+      { type: 'Пропущено', value: missedCalls },
+      { type: 'Прочее', value: other > 0 ? other : randomInt(1, 5) },
     ];
     return {
       date,
@@ -326,6 +339,11 @@ const analyticsRawData = ALL_DATES.flatMap((date) =>
       missedCalls,
       negations,
       scriptErrors,
+      instruction,
+      booking,
+      pickup,
+      complaint,
+      other: other > 0 ? other : randomInt(1, 5),
       topics,
       bestStaffer: `Сотрудник ${randomInt(1, 5)}`,
       avgCompliance: randomInt(70, 98),
@@ -381,13 +399,28 @@ export const getAnalyticsOverview = async ({
   // Динамика по дням
   const dynamic = {} as Record<
     string,
-    { total: number; missed: number; neg: number }
+    {
+      other: number;
+      missed: number;
+      booking: number;
+      pickup: number;
+      complaint: number;
+    }
   >;
   data.forEach((d) => {
-    if (!dynamic[d.date]) dynamic[d.date] = { total: 0, missed: 0, neg: 0 };
-    dynamic[d.date].total += d.totalCalls;
+    if (!dynamic[d.date])
+      dynamic[d.date] = {
+        other: 0,
+        missed: 0,
+        booking: 0,
+        pickup: 0,
+        complaint: 0,
+      };
+    dynamic[d.date].other += d.other;
     dynamic[d.date].missed += d.missedCalls;
-    dynamic[d.date].neg += d.negations;
+    dynamic[d.date].booking += d.booking;
+    dynamic[d.date].pickup += d.pickup;
+    dynamic[d.date].complaint += d.complaint;
   });
   const dynamicArr = Object.entries(dynamic).map(([date, v]) => ({
     date,
@@ -487,10 +520,11 @@ export const getAnalyticsNegations = async ({
     : null;
   // Причины отрицаний (моки)
   const reasons = [
-    'Грубость',
-    'Долгое ожидание',
-    'Не помогли',
-    'Ошибки в заказе',
+    'Не можем забронировать',
+    'Нет оплаты по QR-коду',
+    'Нет доставки',
+    'Нет свободных столов',
+    'Слишком далеко',
   ];
   const topNegations = reasons.map((reason) => ({
     reason,
