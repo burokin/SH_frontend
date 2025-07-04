@@ -7,13 +7,6 @@ import { useMediaQuery } from '../../shared/hooks/useMediaQuery';
 import AnalyticsStatCard from './AnalyticsStatCard';
 import { getAnalyticsOverview } from '../../shared/api';
 
-const pieData = [
-  { type: 'Доставка', value: 40 },
-  { type: 'Бронь', value: 25 },
-  { type: 'Жалоба', value: 15 },
-  { type: 'Прочее', value: 20 },
-];
-
 // Цвета для тем звонков и динамики
 const callTypeColorMap: Record<string, string> = {
   Доставка: '#1677ff',
@@ -23,52 +16,6 @@ const callTypeColorMap: Record<string, string> = {
   Всего: '#bfbfbf',
   Жалоба: '#722ed1',
   Прочее: '#8c8c8c',
-};
-
-const pieConfig = {
-  data: pieData,
-  angleField: 'value',
-  colorField: 'type',
-  color: ({ type }: { type: string }) => callTypeColorMap[type] || '#bfbfbf',
-  label: {
-    text: 'value',
-    style: {
-      fontWeight: 'bold',
-    },
-  },
-  legend: {
-    color: {
-      title: false,
-      position: 'right',
-      rowPadding: 5,
-    },
-  },
-};
-
-// Данные для динамики звонков на 31 день
-const callsDynamicData = Array.from({ length: 31 * 4 }, (_, i) => {
-  const day = Math.floor(i / 4) + 1;
-  const date = day.toString().padStart(2, '0') + '.06';
-  const typeIndex = i % 4;
-  const types = ['Всего', 'Пропущено', 'Самовывоз', 'Бронь'];
-  // Генерируем правдоподобные значения
-  let value = 0;
-  if (types[typeIndex] === 'Всего') value = 18 + Math.floor(Math.random() * 8); // 18–25
-  if (types[typeIndex] === 'Пропущено')
-    value = 1 + Math.floor(Math.random() * 4); // 1–4
-  if (types[typeIndex] === 'Самовывоз')
-    value = 3 + Math.floor(Math.random() * 5); // 3–7
-  if (types[typeIndex] === 'Бронь') value = 2 + Math.floor(Math.random() * 4); // 2–5
-  return { date, type: types[typeIndex], value };
-});
-
-const columnConfig = {
-  data: callsDynamicData,
-  xField: 'date',
-  yField: 'value',
-  colorField: 'type',
-  color: ({ type }: { type: string }) => callTypeColorMap[type] || '#bfbfbf',
-  stack: true,
 };
 
 interface OverviewTabProps {
@@ -136,14 +83,6 @@ const OverviewTab: React.FC<OverviewTabProps> = ({ filters }) => {
       { date: d.date.slice(5), type: 'Пропущено', value: d.missed },
       { date: d.date.slice(5), type: 'Звонки с отрицанием', value: d.neg },
     ]);
-  const columnConfig = {
-    data: columnData,
-    xField: 'date',
-    yField: 'value',
-    colorField: 'type',
-    color: ({ type }: { type: string }) => callTypeColorMap[type] || '#bfbfbf',
-    stack: true,
-  };
 
   return (
     <div>
@@ -210,7 +149,16 @@ const OverviewTab: React.FC<OverviewTabProps> = ({ filters }) => {
             >
               Динамика звонков
             </div>
-            <Column {...columnConfig} />
+            <Column
+              data={columnData}
+              xField="date"
+              yField="value"
+              colorField="type"
+              color={({ type }: { type: string }) =>
+                callTypeColorMap[type] || '#bfbfbf'
+              }
+              stack={true}
+            />
           </div>
         </Col>
       </Row>

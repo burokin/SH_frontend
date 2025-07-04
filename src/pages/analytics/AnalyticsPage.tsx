@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate, Outlet } from 'react-router-dom';
 // import { Tabs } from 'antd';
 import {
   PieChartOutlined,
@@ -15,28 +16,31 @@ import AnalyticsFilters, {
   type AnalyticsFiltersValues,
 } from './AnalyticsFilters';
 import { Typography } from 'antd';
-import dayjs, { Dayjs } from 'dayjs';
+import { Dayjs } from 'dayjs';
 // import { useMediaQuery } from '../../shared/hooks/useMediaQuery';
 // const isMobile = useMediaQuery('(max-width: 768px)');
 
-const tabItems = (filters: AnalyticsFiltersValues) => [
+const tabItems = (apiFilters: {
+  dateRange: [string | null, string | null];
+  restaurant?: string;
+}) => [
   {
     key: 'overview',
     label: 'Обзор',
     icon: <PieChartOutlined />,
-    children: <OverviewTab filters={filters} />,
+    children: <OverviewTab filters={apiFilters} />,
   },
   {
     key: 'script',
     label: 'Инструкция',
     icon: <FileTextOutlined />,
-    children: <ScriptTab filters={filters} />,
+    children: <ScriptTab filters={apiFilters} />,
   },
   {
     key: 'negations',
     label: 'Отрицания',
     icon: <WarningOutlined />,
-    children: <NegationsTab filters={filters} />,
+    children: <NegationsTab filters={apiFilters} />,
   },
   {
     key: 'reports',
@@ -46,12 +50,22 @@ const tabItems = (filters: AnalyticsFiltersValues) => [
   },
 ];
 
+const tabKeys = ['overview', 'script', 'negations', 'reports'];
+
 const AnalyticsPage: React.FC = () => {
+  const { tab } = useParams();
+  const navigate = useNavigate();
   const [filters, setFilters] = useState<AnalyticsFiltersValues>({
     dateRange: [null, null],
     restaurant: undefined,
   });
-  const [activeKey, setActiveKey] = useState('overview');
+  // Если url не содержит таб или таб невалидный — редиректим на overview
+  useEffect(() => {
+    if (!tab || !tabKeys.includes(tab)) {
+      navigate('/dashboard/analytics/overview', { replace: true });
+    }
+  }, [tab, navigate]);
+  const activeKey = tabKeys.includes(tab || '') ? tab! : 'overview';
 
   // Заглушки для опций ресторанов
   const restaurantOptions = [
@@ -78,15 +92,14 @@ const AnalyticsPage: React.FC = () => {
         onReset={handleFiltersReset}
         restaurantOptions={restaurantOptions}
       />
-      {/* Преобразуем dateRange из Dayjs в string для моковых API */}
       {(() => {
         const toStr = (d: Dayjs | null) => (d ? d.format('YYYY-MM-DD') : null);
         const apiFilters = {
-          ...filters,
           dateRange: [
             toStr(filters.dateRange[0]),
             toStr(filters.dateRange[1]),
           ] as [string | null, string | null],
+          restaurant: filters.restaurant,
         };
         return (
           <div className="analytics-custom-tabs">
@@ -97,7 +110,7 @@ const AnalyticsPage: React.FC = () => {
                   className={`analytics-custom-tab${
                     activeKey === tab.key ? ' active' : ''
                   }`}
-                  onClick={() => setActiveKey(tab.key)}
+                  onClick={() => navigate(`/dashboard/analytics/${tab.key}`)}
                   type="button"
                 >
                   {tab.icon}
@@ -110,6 +123,7 @@ const AnalyticsPage: React.FC = () => {
                 tabItems(apiFilters).find((tab) => tab.key === activeKey)
                   ?.children
               }
+              <Outlet />
             </div>
           </div>
         );

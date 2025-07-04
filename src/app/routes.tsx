@@ -21,7 +21,12 @@ export const routes: RouteObject[] = [
       : [
           { index: true, element: <Navigate to={Path.CALLS} replace /> },
           { path: Path.CALLS, element: <CallsPage /> },
-          { path: Path.ANALYTICS, element: <AnalyticsPage /> },
+          {
+            path: Path.ANALYTICS,
+            element: <AnalyticsPage />,
+            children: [{ path: ':tab', element: <AnalyticsPage /> }],
+          },
+          { path: '*', element: <Navigate to={Path.ANALYTICS} replace /> },
         ],
   },
 ];
